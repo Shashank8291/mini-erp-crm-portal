@@ -16,5 +16,10 @@ export const handler = async (event: any, context: any) => {
     }
   }
 
+  // Normalize Netlify function path to match Express routes (/api/...)
+  if (event.path && event.path.startsWith('/.netlify/functions/api')) {
+    event.path = event.path.replace('/.netlify/functions/api', '/api');
+  }
+
   return serverlessHandler(event, context);
 };
