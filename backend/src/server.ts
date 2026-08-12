@@ -75,15 +75,17 @@ app.use((_req, res) => {
 // Error handler
 app.use(errorHandler);
 
-// Initialize DB and Start server
-initDatabase().then(() => {
-  app.listen(env.PORT, () => {
-    console.log(`\n🚀 Mini ERP+CRM Backend running on port ${env.PORT}`);
-    console.log(`📍 Environment: ${env.NODE_ENV}`);
-    console.log(`🔗 http://localhost:${env.PORT}/api/health\n`);
+// Initialize DB and Start server (only in non-serverless environment)
+if (!process.env.NETLIFY && !process.env.LAMBDA_TASK_ROOT) {
+  initDatabase().then(() => {
+    app.listen(env.PORT, () => {
+      console.log(`\n🚀 Mini ERP+CRM Backend running on port ${env.PORT}`);
+      console.log(`📍 Environment: ${env.NODE_ENV}`);
+      console.log(`🔗 http://localhost:${env.PORT}/api/health\n`);
+    });
+  }).catch((err) => {
+    console.error('Failed to initialize database:', err);
   });
-}).catch((err) => {
-  console.error('Failed to initialize database:', err);
-});
+}
 
 export default app;

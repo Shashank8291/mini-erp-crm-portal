@@ -1,13 +1,9 @@
 {
-  "name": "mini-erp-crm-backend",
+  "name": "mini-erp-crm-portal",
   "version": "1.0.0",
-  "description": "Mini ERP + CRM Operations Portal - Backend API",
-  "main": "dist/server.js",
+  "private": true,
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "seed": "ts-node src/config/seed.ts"
+    "build": "cd frontend && npm install && npm run build"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -27,8 +23,6 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.5.0",
     "@types/pg": "^8.11.10",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.2"
   }
 }
