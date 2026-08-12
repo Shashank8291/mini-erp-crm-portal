@@ -68,12 +68,21 @@ app.get('/api/dashboard/stats', authenticate, async (req, res) => {
   }
 });
 
-// API Routes
+// API Routes (supports both /api/route and /route for Netlify serverless functions)
 app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
+
 app.use('/api/customers', customersRouter);
+app.use('/customers', customersRouter);
+
 app.use('/api/products', productsRouter);
+app.use('/products', productsRouter);
+
 app.use('/api/stock', stockRouter);
+app.use('/stock', stockRouter);
+
 app.use('/api/orders', ordersRouter);
+app.use('/orders', ordersRouter);
 
 // 404 handler
 app.use((_req, res) => {

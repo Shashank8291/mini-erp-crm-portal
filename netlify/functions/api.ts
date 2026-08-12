@@ -23,3 +23,7 @@ export const handler = async (event: any, context: any) => {
 
   return serverlessHandler(event, context);
 };
+
+export const config = {
+  path: ["/api/*", "/.netlify/functions/api/*"]
+};
