@@ -8,236 +8,244 @@ export default function ThreeBackground() {
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-
     let animationFrameId: number;
     let renderer: THREE.WebGLRenderer | null = null;
 
     try {
-      // Scene setup
+      // 1. Scene & Camera
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      scene.fog = new THREE.FogExp2(0x050514, 0.015);
+
+      const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 5, 35);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setClearColor(0x050510, 1);
+      renderer.setClearColor(0x050514, 1);
       container.appendChild(renderer.domElement);
-
-      camera.position.z = 30;
 
       // Mouse tracking
       const mouse = { x: 0, y: 0 };
       const targetMouse = { x: 0, y: 0 };
 
-      // Create floating particles
-      const particleCount = 200;
-      const particlesGeometry = new THREE.BufferGeometry();
-      const positions = new Float32Array(particleCount * 3);
-      const colors = new Float32Array(particleCount * 3);
-      const sizes = new Float32Array(particleCount);
+      // 2. Futuristic Cyber Wave Grid Floor
+      const gridWidth = 120;
+      const gridHeight = 120;
+      const gridSegments = 60;
+      const planeGeo = new THREE.PlaneGeometry(gridWidth, gridHeight, gridSegments, gridSegments);
+      planeGeo.rotateX(-Math.PI / 2.2);
 
-      const colorPalette = [
-        new THREE.Color(0x6366f1), // Indigo
-        new THREE.Color(0x06b6d4), // Cyan
-        new THREE.Color(0xa855f7), // Purple
-        new THREE.Color(0x3b82f6), // Blue
-        new THREE.Color(0x818cf8), // Light indigo
+      const posAttribute = planeGeo.attributes.position;
+      const initialZValues = new Float32Array(posAttribute.count);
+      for (let i = 0; i < posAttribute.count; i++) {
+        initialZValues[i] = posAttribute.getZ(i);
+      }
+
+      const wireframeMat = new THREE.MeshStandardMaterial({
+        color: 0x4f46e5,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.18,
+        emissive: 0x312e81,
+        emissiveIntensity: 0.4,
+        roughness: 0.2,
+        metalness: 0.8,
+      });
+
+      const gridMesh = new THREE.Mesh(planeGeo, wireframeMat);
+      gridMesh.position.y = -15;
+      scene.add(gridMesh);
+
+      // 3. Floating Quantum Data Crystals
+      const crystalGroup = new THREE.Group();
+      scene.add(crystalGroup);
+
+      const crystalColors = [0x6366f1, 0x06b6d4, 0xa855f7, 0x3b82f6, 0x10b981];
+      const crystals: THREE.Mesh[] = [];
+
+      // Dodecahedrons & Octahedrons
+      for (let i = 0; i < 18; i++) {
+        const isOcta = i % 2 === 0;
+        const geo = isOcta
+          ? new THREE.OctahedronGeometry(Math.random() * 1.6 + 0.8, 0)
+          : new THREE.DodecahedronGeometry(Math.random() * 1.4 + 0.6, 0);
+
+        const color = crystalColors[i % crystalColors.length];
+        const mat = new THREE.MeshStandardMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 0.35,
+          roughness: 0.1,
+          metalness: 0.9,
+          transparent: true,
+          opacity: 0.55,
+          wireframe: Math.random() > 0.4,
+        });
+
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(
+          (Math.random() - 0.5) * 70,
+          (Math.random() - 0.5) * 45 + 5,
+          (Math.random() - 0.5) * 40 - 5
+        );
+
+        mesh.userData = {
+          rotSpeed: {
+            x: (Math.random() - 0.5) * 0.015,
+            y: (Math.random() - 0.5) * 0.02,
+            z: (Math.random() - 0.5) * 0.01,
+          },
+          floatSpeed: Math.random() * 0.8 + 0.4,
+          floatOffset: Math.random() * Math.PI * 2,
+          baseY: mesh.position.y,
+        };
+
+        crystalGroup.add(mesh);
+        crystals.push(mesh);
+      }
+
+      // Central Floating Torus Knot Nexus Core
+      const knotGeo = new THREE.TorusKnotGeometry(4.5, 0.8, 120, 16);
+      const knotMat = new THREE.MeshStandardMaterial({
+        color: 0x818cf8,
+        emissive: 0x4f46e5,
+        emissiveIntensity: 0.6,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.3,
+      });
+      const knotMesh = new THREE.Mesh(knotGeo, knotMat);
+      knotMesh.position.set(0, 4, -20);
+      scene.add(knotMesh);
+
+      // 4. Dense Starfield / Particle Cloud
+      const particleCount = 450;
+      const particleGeo = new THREE.BufferGeometry();
+      const pPositions = new Float32Array(particleCount * 3);
+      const pColors = new Float32Array(particleCount * 3);
+
+      const palette = [
+        new THREE.Color(0x6366f1),
+        new THREE.Color(0x06b6d4),
+        new THREE.Color(0xc084fc),
+        new THREE.Color(0x38bdf8),
+        new THREE.Color(0x34d399),
       ];
 
       for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 80;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+        pPositions[i * 3] = (Math.random() - 0.5) * 110;
+        pPositions[i * 3 + 1] = (Math.random() - 0.5) * 90;
+        pPositions[i * 3 + 2] = (Math.random() - 0.5) * 80 - 10;
 
-        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-        colors[i * 3] = color.r;
-        colors[i * 3 + 1] = color.g;
-        colors[i * 3 + 2] = color.b;
-
-        sizes[i] = Math.random() * 3 + 1;
+        const c = palette[Math.floor(Math.random() * palette.length)];
+        pColors[i * 3] = c.r;
+        pColors[i * 3 + 1] = c.g;
+        pColors[i * 3 + 2] = c.b;
       }
 
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      particleGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+      particleGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
 
-      // Custom particle material with glow effect
-      const particleMaterial = new THREE.PointsMaterial({
-        size: 0.5,
+      const particleMat = new THREE.PointsMaterial({
+        size: 0.7,
         vertexColors: true,
         transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-        sizeAttenuation: true,
-      });
-
-      const particles = new THREE.Points(particlesGeometry, particleMaterial);
-      scene.add(particles);
-
-      // Create floating geometric shapes
-      const geometries: THREE.Mesh[] = [];
-
-      // Icosahedrons
-      for (let i = 0; i < 8; i++) {
-        const size = Math.random() * 1.5 + 0.5;
-        const geo = new THREE.IcosahedronGeometry(size, 0);
-        const mat = new THREE.MeshPhongMaterial({
-          color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
-          transparent: true,
-          opacity: 0.15,
-          wireframe: true,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(
-          (Math.random() - 0.5) * 50,
-          (Math.random() - 0.5) * 50,
-          (Math.random() - 0.5) * 30
-        );
-        mesh.userData = {
-          rotSpeed: { x: Math.random() * 0.01, y: Math.random() * 0.01, z: Math.random() * 0.005 },
-          floatSpeed: Math.random() * 0.5 + 0.2,
-          floatOffset: Math.random() * Math.PI * 2,
-          originalY: mesh.position.y,
-        };
-        scene.add(mesh);
-        geometries.push(mesh);
-      }
-
-      // Torus knots
-      for (let i = 0; i < 4; i++) {
-        const geo = new THREE.TorusKnotGeometry(1 + Math.random(), 0.3, 64, 8);
-        const mat = new THREE.MeshPhongMaterial({
-          color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
-          transparent: true,
-          opacity: 0.1,
-          wireframe: true,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(
-          (Math.random() - 0.5) * 60,
-          (Math.random() - 0.5) * 40,
-          (Math.random() - 0.5) * 20 - 10
-        );
-        mesh.userData = {
-          rotSpeed: { x: Math.random() * 0.005, y: Math.random() * 0.008, z: Math.random() * 0.003 },
-          floatSpeed: Math.random() * 0.3 + 0.1,
-          floatOffset: Math.random() * Math.PI * 2,
-          originalY: mesh.position.y,
-        };
-        scene.add(mesh);
-        geometries.push(mesh);
-      }
-
-      // Connection lines between particles
-      const linesMaterial = new THREE.LineBasicMaterial({
-        color: 0x6366f1,
-        transparent: true,
-        opacity: 0.06,
+        opacity: 0.85,
         blending: THREE.AdditiveBlending,
       });
 
-      const linesGroup = new THREE.Group();
-      scene.add(linesGroup);
+      const particleSystem = new THREE.Points(particleGeo, particleMat);
+      scene.add(particleSystem);
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404080, 0.5);
+      // 5. Dynamic Aurora Lights
+      const ambientLight = new THREE.AmbientLight(0x2e1065, 0.8);
       scene.add(ambientLight);
 
-      const pointLight1 = new THREE.PointLight(0x6366f1, 2, 100);
-      pointLight1.position.set(20, 20, 20);
-      scene.add(pointLight1);
+      const light1 = new THREE.PointLight(0x6366f1, 3.5, 90);
+      light1.position.set(25, 20, 15);
+      scene.add(light1);
 
-      const pointLight2 = new THREE.PointLight(0x06b6d4, 2, 100);
-      pointLight2.position.set(-20, -20, 20);
-      scene.add(pointLight2);
+      const light2 = new THREE.PointLight(0x06b6d4, 3.5, 90);
+      light2.position.set(-25, -15, 10);
+      scene.add(light2);
 
-      const pointLight3 = new THREE.PointLight(0xa855f7, 1.5, 80);
-      pointLight3.position.set(0, 30, -10);
-      scene.add(pointLight3);
+      const light3 = new THREE.PointLight(0xa855f7, 3.0, 70);
+      light3.position.set(0, 30, -25);
+      scene.add(light3);
 
-      // Animation
+      // 6. Animation Loop
       const clock = new THREE.Clock();
 
-      function updateLines() {
-        while (linesGroup.children.length) {
-          const child = linesGroup.children[0];
-          linesGroup.remove(child);
-          if ((child as any).geometry) (child as any).geometry.dispose();
-        }
-
-        const posArray = particlesGeometry.attributes.position.array as Float32Array;
-        const threshold = 12;
-
-        for (let i = 0; i < Math.min(particleCount, 50); i++) {
-          for (let j = i + 1; j < Math.min(particleCount, 50); j++) {
-            const dx = posArray[i * 3] - posArray[j * 3];
-            const dy = posArray[i * 3 + 1] - posArray[j * 3 + 1];
-            const dz = posArray[i * 3 + 2] - posArray[j * 3 + 2];
-            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-            if (dist < threshold) {
-              const lineGeo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(posArray[i * 3], posArray[i * 3 + 1], posArray[i * 3 + 2]),
-                new THREE.Vector3(posArray[j * 3], posArray[j * 3 + 1], posArray[j * 3 + 2]),
-              ]);
-              const line = new THREE.Line(lineGeo, linesMaterial);
-              linesGroup.add(line);
-            }
-          }
-        }
-      }
-
-      let frameCount = 0;
-
-      function animate() {
+      const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
 
-        const elapsed = clock.getElapsedTime();
-        frameCount++;
+        const elapsedTime = clock.getElapsedTime();
 
-        targetMouse.x += (mouse.x - targetMouse.x) * 0.05;
-        targetMouse.y += (mouse.y - targetMouse.y) * 0.05;
+        // Smooth mouse damping
+        targetMouse.x += (mouse.x - targetMouse.x) * 0.04;
+        targetMouse.y += (mouse.y - targetMouse.y) * 0.04;
 
-        particles.rotation.y = elapsed * 0.05 + targetMouse.x * 0.3;
-        particles.rotation.x = elapsed * 0.03 + targetMouse.y * 0.2;
+        // Camera subtle sway
+        camera.position.x = targetMouse.x * 6;
+        camera.position.y = 5 + targetMouse.y * 4;
+        camera.lookAt(0, 0, -10);
 
-        const posArray = particlesGeometry.attributes.position.array as Float32Array;
-        for (let i = 0; i < particleCount; i++) {
-          posArray[i * 3 + 1] += Math.sin(elapsed * 0.5 + i * 0.1) * 0.01;
+        // Animate Grid Undulation Wave
+        const positions = planeGeo.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+          const u = positions.getX(i);
+          const v = positions.getY(i);
+          const wave = Math.sin(u * 0.15 + elapsedTime * 1.5) * Math.cos(v * 0.15 + elapsedTime * 1.2) * 1.4;
+          positions.setZ(i, initialZValues[i] + wave);
         }
-        particlesGeometry.attributes.position.needsUpdate = true;
+        positions.needsUpdate = true;
 
-        for (const mesh of geometries) {
-          mesh.rotation.x += mesh.userData.rotSpeed.x;
-          mesh.rotation.y += mesh.userData.rotSpeed.y;
-          mesh.rotation.z += mesh.userData.rotSpeed.z;
-          mesh.position.y = mesh.userData.originalY + Math.sin(elapsed * mesh.userData.floatSpeed + mesh.userData.floatOffset) * 2;
+        // Rotate & Float Crystals
+        for (const crystal of crystals) {
+          crystal.rotation.x += crystal.userData.rotSpeed.x;
+          crystal.rotation.y += crystal.userData.rotSpeed.y;
+          crystal.rotation.z += crystal.userData.rotSpeed.z;
+
+          crystal.position.y =
+            crystal.userData.baseY +
+            Math.sin(elapsedTime * crystal.userData.floatSpeed + crystal.userData.floatOffset) * 2.2;
         }
 
-        pointLight1.position.x = Math.sin(elapsed * 0.3) * 25;
-        pointLight1.position.y = Math.cos(elapsed * 0.4) * 25;
-        pointLight2.position.x = Math.cos(elapsed * 0.3) * 25;
-        pointLight2.position.y = Math.sin(elapsed * 0.2) * 25;
+        // Rotate Torus Knot Core
+        knotMesh.rotation.x = elapsedTime * 0.2;
+        knotMesh.rotation.y = elapsedTime * 0.25;
 
-        if (frameCount % 30 === 0) {
-          updateLines();
+        // Rotate Particle System
+        particleSystem.rotation.y = elapsedTime * 0.03 + targetMouse.x * 0.1;
+        particleSystem.rotation.x = elapsedTime * 0.015 + targetMouse.y * 0.1;
+
+        // Move Aurora Lights
+        light1.position.x = Math.sin(elapsedTime * 0.4) * 30;
+        light1.position.z = Math.cos(elapsedTime * 0.5) * 25;
+
+        light2.position.x = Math.cos(elapsedTime * 0.4) * 30;
+        light2.position.y = Math.sin(elapsedTime * 0.3) * 20;
+
+        if (renderer) {
+          renderer.render(scene, camera);
         }
-
-        if (renderer) renderer.render(scene, camera);
-      }
+      };
 
       animate();
 
-      function handleMouseMove(event: MouseEvent) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      }
+      // Handlers
+      const handleMouseMove = (e: MouseEvent) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      };
 
-      function handleResize() {
+      const handleResize = () => {
         if (!renderer) return;
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-      }
+      };
 
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('resize', handleResize);
@@ -254,7 +262,7 @@ export default function ThreeBackground() {
         }
       };
     } catch (e) {
-      console.warn('WebGL not supported or failed to initialize:', e);
+      console.warn('WebGL initialization failed:', e);
     }
   }, []);
 
