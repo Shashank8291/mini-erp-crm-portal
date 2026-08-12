@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import LogoIcon from './LogoIcon';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -31,7 +32,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">⚡</div>
+          <div className="sidebar-logo-icon" style={{ background: 'none', boxShadow: 'none' }}>
+            <LogoIcon size={38} />
+          </div>
           <h1>ERP Portal</h1>
         </div>
 

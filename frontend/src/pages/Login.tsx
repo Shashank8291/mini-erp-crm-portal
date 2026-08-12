@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import ThreeBackground from '../components/ThreeBackground';
+import LogoIcon from '../components/LogoIcon';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -43,7 +44,9 @@ export default function Login() {
       <div className="login-page">
         <div className="login-card glass-card-static animate-slideUp">
           <div className="login-header">
-            <div className="login-logo">⚡</div>
+            <div className="login-logo" style={{ background: 'none', boxShadow: 'none' }}>
+              <LogoIcon size={56} />
+            </div>
             <h1>ERP + CRM Portal</h1>
             <p>Sign in to your operations dashboard</p>
           </div>
