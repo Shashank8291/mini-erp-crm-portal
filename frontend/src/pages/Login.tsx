@@ -25,7 +25,10 @@ export default function Login() {
         navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      const msg =
+        err.response?.data?.message ||
+        (err.response?.status ? `Server Error (${err.response.status}). Please try again.` : err.message || 'Login failed. Please check network connection.');
+      setError(msg);
     } finally {
       setLoading(false);
     }
