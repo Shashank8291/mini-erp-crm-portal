@@ -1,6 +1,15 @@
 # 🏢 Mini ERP + CRM Operations Portal
 
-A modern, full-stack ERP and CRM operations system designed for wholesale and distribution enterprises. Built with a robust **Node.js / Express / TypeScript** backend, a high-performance **React 19 / Vite** frontend featuring glassmorphism UI and interactive **Three.js** 3D background visualizers, and a resilient dual-mode database engine (**PostgreSQL 15** with automatic **in-memory pg-mem** fallback).
+A modern, full-stack ERP and CRM operations system designed for wholesale and distribution enterprises. Built with a robust **Node.js / Express / TypeScript** backend, a high-performance **React 19 / Vite** frontend featuring glassmorphism UI, interactive **3D Hexagon Grid** visualizers, Smart KPI Cards, and a resilient dual-mode database engine (**PostgreSQL 15** with automatic **in-memory pg-mem** fallback).
+
+[![Live Portal](https://img.shields.io/badge/Live%20Portal-Netlify-00C7B7?logo=netlify&logoColor=white&style=for-the-badge)](https://shashank-erp-portal-2004.netlify.app/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white&style=for-the-badge)](https://github.com/Shashank8291/mini-erp-crm-portal)
+
+---
+
+> 🚀 **Live Production Deployment:** [https://shashank-erp-portal-2004.netlify.app/](https://shashank-erp-portal-2004.netlify.app/)
+
+---
 
 ![Tech Stack](https://img.shields.io/badge/Node.js-TypeScript-3178C6?logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React%2019-Vite-61DAFB?logo=react&logoColor=black)
@@ -406,6 +415,7 @@ docker-compose down
 ## 🌐 Serverless Deployment (Netlify)
 
 This repository is pre-configured for full-stack deployment on Netlify using Netlify Functions:
+- **Live Site URL**: [https://shashank-erp-portal-2004.netlify.app/](https://shashank-erp-portal-2004.netlify.app/)
 - `netlify.toml` coordinates the build: installs root & frontend dependencies, bundles functions using `esbuild`, and publishes `frontend/dist`.
 - `netlify/functions/api.ts` adapts the Express API into a serverless lambda function using `serverless-http`.
 - Database connections intelligently detect serverless runtime and leverage in-memory storage or a serverless PostgreSQL instance (such as Neon or Supabase).
