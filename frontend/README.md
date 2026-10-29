@@ -1,32 +1,51 @@
-# React + TypeScript + Vite
+# Mini ERP + CRM Portal — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The client-side single page application (SPA) for the Mini ERP + CRM Operations Portal.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router DOM (v7)
+- **Visuals**: Three.js (interactive 3D particle canvas background)
+- **Styling**: Pure CSS Glassmorphism design system (`src/index.css`)
+- **HTTP Client**: Axios with automatic JWT interceptors
+- **Linting**: Oxlint
 
-## React Compiler
+## 📂 Source Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+frontend/src/
+├── api/            # API client modules (auth, customers, products, stock, orders, dashboard)
+├── assets/         # Static graphic assets
+├── components/     # Reusable components (Sidebar, ThreeBackground, ProtectedRoute, LogoIcon)
+├── context/        # React context (AuthContext for user session and role management)
+├── pages/          # Application views:
+│   ├── Login.tsx          # JWT authentication screen
+│   ├── Dashboard.tsx      # Overview metrics, charts, and quick-access widgets
+│   ├── Customers.tsx      # CRM list, search, filters, modal forms, follow-up notes
+│   ├── Products.tsx       # Inventory catalog, SKU management, low stock filters
+│   ├── StockMovements.tsx # Stock IN/OUT audit adjustments
+│   ├── Orders.tsx         # Multi-item sales order builder & status transitions
+│   └── Profile.tsx        # User profile and password updater
+├── types/          # Shared TypeScript interfaces
+├── App.tsx         # Route configuration with role-based access guards
+├── main.tsx        # DOM entry point
+└── index.css       # Core styling & 40+ glassmorphism utility classes
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🛠️ Scripts
+
+- `npm run dev` — Starts local Vite development server on `http://localhost:5173`
+- `npm run build` — Type-checks and creates production build in `dist/`
+- `npm run lint` — Runs fast oxlint checks
+- `npm run preview` — Previews production build locally
+
+## ⚙️ Environment Configuration
+
+Refer to `.env.example` in this directory:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+For full system architecture, database schema, and backend details, refer to the root [README.md](../README.md).
