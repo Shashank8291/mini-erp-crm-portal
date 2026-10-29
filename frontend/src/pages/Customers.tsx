@@ -172,7 +172,7 @@ export default function Customers() {
               <tbody>
                 {customers.length > 0 ? customers.map((c) => (
                   <tr key={c.id}>
-                    <td style={{ cursor: 'pointer', color: '#818cf8' }} onClick={() => viewDetail(c.id)}>{c.name}</td>
+                    <td style={{ cursor: 'pointer', color: 'var(--color-primary-light)' }} onClick={() => viewDetail(c.id)}>{c.name}</td>
                     <td>{c.business_name || '—'}</td>
                     <td>{c.mobile || '—'}</td>
                     <td><span className={`badge badge-${c.type.toLowerCase()}`}>{c.type}</span></td>
@@ -311,7 +311,7 @@ export default function Customers() {
 
               {/* Notes */}
               <div style={{ marginTop: '20px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#818cf8', marginBottom: '12px' }}>Follow-up Notes</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginBottom: '12px' }}>Follow-up Notes</h3>
                 <div className="notes-list">
                   {showDetail.notes ? (
                     showDetail.notes.split('\n\n').map((note, i) => (

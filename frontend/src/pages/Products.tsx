@@ -135,7 +135,7 @@ export default function Products() {
                 {products.length > 0 ? products.map((p) => (
                   <tr key={p.id}>
                     <td>{p.name}</td>
-                    <td style={{ fontFamily: 'monospace', color: '#818cf8' }}>{p.sku}</td>
+                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{p.sku}</td>
                     <td>{p.category || '—'}</td>
                     <td>{formatPrice(p.unit_price)}</td>
                     <td>

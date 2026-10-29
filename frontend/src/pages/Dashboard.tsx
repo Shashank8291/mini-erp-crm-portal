@@ -41,7 +41,7 @@ export default function Dashboard() {
       </div>
 
       <div className="stats-grid">
-        <div className="glass-card stat-card stat-card-purple" onClick={() => navigate('/customers')} style={{ cursor: 'pointer' }}>
+        <div className="glass-card stat-card stat-card-blue" onClick={() => navigate('/customers')} style={{ cursor: 'pointer' }}>
           <div className="stat-card-icon">👥</div>
           <div className="stat-card-value">{stats?.customers?.total || 0}</div>
           <div className="stat-card-label">Total Customers</div>
@@ -83,7 +83,7 @@ export default function Dashboard() {
       {/* Recent Orders */}
       <div className="glass-card-static" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#818cf8' }}>Recent Sales Orders</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)' }}>Recent Sales Orders</h3>
         </div>
         <div className="table-container">
           <table className="data-table">
@@ -100,7 +100,7 @@ export default function Dashboard() {
               {stats?.recentOrders && stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
                   <tr key={order.id} onClick={() => navigate(`/orders`)} style={{ cursor: 'pointer' }}>
-                    <td style={{ fontFamily: 'monospace', color: '#818cf8' }}>{order.order_number}</td>
+                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{order.order_number}</td>
                     <td>{order.customer_name}</td>
                     <td>{order.total_quantity}</td>
                     <td>

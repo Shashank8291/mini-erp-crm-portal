@@ -15,20 +15,20 @@ export default function LogoIcon({ size = 32, className = '' }: LogoIconProps) {
     >
       <defs>
         <linearGradient id="erpGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6366f1" />
-          <stop offset="50%" stopColor="#818cf8" />
-          <stop offset="100%" stopColor="#a855f7" />
+          <stop offset="0%" stopColor="#0284c7" />
+          <stop offset="50%" stopColor="#0ea5e9" />
+          <stop offset="100%" stopColor="#38bdf8" />
         </linearGradient>
         <linearGradient id="erpGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#06b6d4" />
-          <stop offset="100%" stopColor="#3b82f6" />
+          <stop offset="0%" stopColor="#0369a1" />
+          <stop offset="100%" stopColor="#0284c7" />
         </linearGradient>
         <linearGradient id="erpGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#c084fc" stopOpacity="0.8" />
+          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#e0f2fe" stopOpacity="0.9" />
         </linearGradient>
         <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#6366f1" floodOpacity="0.5" />
+          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0284c7" floodOpacity="0.4" />
         </filter>
       </defs>
 

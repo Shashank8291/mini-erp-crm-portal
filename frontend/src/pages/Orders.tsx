@@ -204,7 +204,7 @@ export default function Orders() {
               <tbody>
                 {orders.length > 0 ? orders.map((o) => (
                   <tr key={o.id}>
-                    <td style={{ fontFamily: 'monospace', color: '#818cf8', cursor: 'pointer' }} onClick={() => viewDetail(o.id)}>{o.order_number}</td>
+                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => viewDetail(o.id)}>{o.order_number}</td>
                     <td>{o.customer_name}</td>
                     <td>{o.total_quantity}</td>
                     <td><span className={`badge badge-${o.status.toLowerCase()}`}>{o.status}</span></td>
@@ -300,7 +300,7 @@ export default function Orders() {
                         onChange={(e) => updateItemQuantity(item.product_id, parseInt(e.target.value) || 1)}
                         style={{ padding: '6px 8px' }}
                       />
-                      <span style={{ fontWeight: 600, color: '#818cf8' }}>{formatPrice(item.quantity * item.product_price)}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-primary-light)' }}>{formatPrice(item.quantity * item.product_price)}</span>
                       <button className="btn btn-ghost btn-sm" onClick={() => removeItem(item.product_id)} style={{ padding: '4px' }}>🗑️</button>
                     </div>
                   ))}
@@ -345,7 +345,7 @@ export default function Orders() {
               <div className="detail-grid">
                 <div className="detail-section glass-card-static">
                   <h3>Order Info</h3>
-                  <div className="detail-row"><span className="detail-label">Order No.</span><span className="detail-value" style={{ fontFamily: 'monospace', color: '#818cf8' }}>{showDetail.order_number}</span></div>
+                  <div className="detail-row"><span className="detail-label">Order No.</span><span className="detail-value" style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{showDetail.order_number}</span></div>
                   <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value"><span className={`badge badge-${showDetail.status.toLowerCase()}`}>{showDetail.status}</span></span></div>
                   <div className="detail-row"><span className="detail-label">Created By</span><span className="detail-value">{showDetail.created_by_name}</span></div>
                   <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{new Date(showDetail.created_at).toLocaleString()}</span></div>
@@ -361,7 +361,7 @@ export default function Orders() {
 
               {/* Items Table */}
               <div style={{ marginTop: '20px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#818cf8', marginBottom: '12px' }}>Items</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginBottom: '12px' }}>Items</h3>
                 <div className="table-container glass-card-static" style={{ borderRadius: '12px' }}>
                   <table className="data-table">
                     <thead>
@@ -378,7 +378,7 @@ export default function Orders() {
                           <td>{item.product_name_snapshot}</td>
                           <td>{formatPrice(item.product_price_snapshot)}</td>
                           <td>{item.quantity}</td>
-                          <td style={{ fontWeight: 600, color: '#818cf8' }}>{formatPrice(item.quantity * item.product_price_snapshot)}</td>
+                          <td style={{ fontWeight: 600, color: 'var(--color-primary-light)' }}>{formatPrice(item.quantity * item.product_price_snapshot)}</td>
                         </tr>
                       ))}
                     </tbody>

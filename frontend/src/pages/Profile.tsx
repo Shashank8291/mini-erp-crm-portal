@@ -114,7 +114,7 @@ export default function Profile() {
 
       {/* Profile Form Card */}
       <form onSubmit={handleSubmit} className="glass-card-static" style={{ padding: '28px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#818cf8', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
           Personal Information
         </h3>
 
@@ -166,7 +166,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#818cf8', marginTop: '28px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginTop: '28px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
           Update Password (Optional)
         </h3>
 

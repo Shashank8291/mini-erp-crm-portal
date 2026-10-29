@@ -107,7 +107,7 @@ export default function StockMovements() {
                   <tr key={m.id}>
                     <td>{new Date(m.created_at).toLocaleString()}</td>
                     <td>{m.product_name || '—'}</td>
-                    <td style={{ fontFamily: 'monospace', color: '#818cf8' }}>{m.product_sku || '—'}</td>
+                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{m.product_sku || '—'}</td>
                     <td><span className={`badge badge-${m.movement_type.toLowerCase()}`}>{m.movement_type}</span></td>
                     <td style={{ fontWeight: 600, color: m.movement_type === 'IN' ? '#10b981' : '#ef4444' }}>
                       {m.movement_type === 'IN' ? '+' : '-'}{m.quantity_changed}
