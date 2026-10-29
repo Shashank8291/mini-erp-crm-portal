@@ -1,3 +1,4 @@
+// Mini ERP + CRM Operations Portal - Backend API Server
 import express from 'express';
 import cors from 'cors';
 import { env } from './config/env';

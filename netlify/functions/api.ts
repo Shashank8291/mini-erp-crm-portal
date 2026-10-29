@@ -1,3 +1,4 @@
+// Mini ERP + CRM Portal - Netlify Serverless Function Handler
 import serverless from 'serverless-http';
 import app from '../../backend/src/server';
 import { initDatabase } from '../../backend/src/config/db';
