@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -65,13 +65,13 @@ function RootRedirect() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<Login />} />
           <Route path="/*" element={<AppLayout />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
 }
