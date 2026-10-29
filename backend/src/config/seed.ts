@@ -1,5 +1,12 @@
 import pool from './db';
 import bcrypt from 'bcryptjs';
+import {
+  seedCustomers,
+  seedProducts,
+  seedOrders,
+  seedOrderItems,
+  seedStockMovements,
+} from './seedData';
 
 export const initSQL = `
 -- Users table
@@ -77,12 +84,16 @@ CREATE TABLE IF NOT EXISTS order_items (
 
 export const seedUsers = [
   { name: 'Admin User', email: 'admin@erp.com', password: 'Admin@123', role: 'Admin' },
-  { name: 'Sales User', email: 'sales@erp.com', password: 'Sales@123', role: 'Sales' },
-  { name: 'Warehouse User', email: 'warehouse@erp.com', password: 'Warehouse@123', role: 'Warehouse' },
-  { name: 'Accounts User', email: 'accounts@erp.com', password: 'Accounts@123', role: 'Accounts' },
+  { name: 'Sales Representative', email: 'sales@erp.com', password: 'Sales@123', role: 'Sales' },
+  { name: 'Warehouse Officer', email: 'warehouse@erp.com', password: 'Warehouse@123', role: 'Warehouse' },
+  { name: 'Accounts Manager', email: 'accounts@erp.com', password: 'Accounts@123', role: 'Accounts' },
 ];
 
-export async function seed(targetPool = pool) {
+let isSeeding = false;
+
+export async function seed(targetPool: any = pool) {
+  if (isSeeding) return;
+  isSeeding = true;
   try {
     console.log('🔧 Initializing database tables...');
     await targetPool.query(initSQL);
@@ -92,7 +103,7 @@ export async function seed(targetPool = pool) {
     for (const user of seedUsers) {
       const existing = await targetPool.query('SELECT id FROM users WHERE email = $1', [user.email]);
       if (existing.rows.length === 0) {
-        const hash = await bcrypt.hash(user.password, 12);
+        const hash = await bcrypt.hash(user.password, 10);
         await targetPool.query(
           'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4)',
           [user.name, user.email, hash, user.role]
@@ -103,54 +114,78 @@ export async function seed(targetPool = pool) {
       }
     }
 
-    // Seed sample products
-    const sampleProducts = [
-      { name: 'Wireless Keyboard', sku: 'WKB-001', category: 'Electronics', unit_price: 1499.00, current_stock: 50, min_stock_alert: 10, location: 'Warehouse A' },
-      { name: 'USB-C Hub 7-in-1', sku: 'UCH-002', category: 'Electronics', unit_price: 2299.00, current_stock: 30, min_stock_alert: 5, location: 'Warehouse A' },
-      { name: 'Office Chair Ergonomic', sku: 'OCE-003', category: 'Furniture', unit_price: 8999.00, current_stock: 15, min_stock_alert: 3, location: 'Warehouse B' },
-      { name: 'A4 Copy Paper (500 sheets)', sku: 'ACP-004', category: 'Stationery', unit_price: 299.00, current_stock: 200, min_stock_alert: 50, location: 'Warehouse A' },
-      { name: 'LED Monitor 24 inch', sku: 'LDM-005', category: 'Electronics', unit_price: 12499.00, current_stock: 20, min_stock_alert: 5, location: 'Warehouse B' },
-    ];
+    // Check if enterprise dataset is already seeded
+    const countCheck = await targetPool.query('SELECT COUNT(*) as count FROM products');
+    const existingCount = parseInt(countCheck.rows[0]?.count || '0', 10);
 
-    console.log('📦 Seeding sample products...');
-    for (const product of sampleProducts) {
-      const existing = await targetPool.query('SELECT id FROM products WHERE sku = $1', [product.sku]);
-      if (existing.rows.length === 0) {
-        await targetPool.query(
-          'INSERT INTO products (name, sku, category, unit_price, current_stock, min_stock_alert, location) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-          [product.name, product.sku, product.category, product.unit_price, product.current_stock, product.min_stock_alert, product.location]
-        );
-        console.log(`  ✅ Created product: ${product.name}`);
-      } else {
-        console.log(`  ⏭️  Product already exists: ${product.sku}`);
-      }
+    if (existingCount >= 60) {
+      console.log(`⏭️  Enterprise dataset already seeded (${existingCount} products present).`);
+      return;
     }
 
-    // Seed sample customers
-    const sampleCustomers = [
-      { name: 'Rajesh Kumar', mobile: '9876543210', email: 'rajesh@techsupply.in', business_name: 'Tech Supply India', gst_no: '29ABCDE1234F1Z5', type: 'Wholesale', address: '45 MG Road, Bangalore', status: 'Active', notes: 'Long-term wholesale client' },
-      { name: 'Priya Sharma', mobile: '9876543211', email: 'priya@homeoffice.com', business_name: 'Home Office Solutions', gst_no: null, type: 'Retail', address: '12 Park Street, Kolkata', status: 'Lead', notes: 'Interested in bulk stationery' },
-      { name: 'Amit Patel', mobile: '9876543212', email: 'amit@distroking.com', business_name: 'DistroKing Pvt Ltd', gst_no: '24FGHIJ5678K2L3', type: 'Distributor', address: '78 SG Highway, Ahmedabad', status: 'Active', notes: 'Main distributor for Gujarat' },
-    ];
+    console.log('🧹 Purging outdated sample data...');
+    await targetPool.query('DELETE FROM order_items');
+    await targetPool.query('DELETE FROM stock_movements');
+    await targetPool.query('DELETE FROM orders');
+    await targetPool.query('DELETE FROM products');
+    await targetPool.query('DELETE FROM customers');
 
-    console.log('👥 Seeding sample customers...');
-    for (const customer of sampleCustomers) {
-      const existing = await targetPool.query('SELECT id FROM customers WHERE email = $1', [customer.email]);
-      if (existing.rows.length === 0) {
-        await targetPool.query(
-          'INSERT INTO customers (name, mobile, email, business_name, gst_no, type, address, status, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-          [customer.name, customer.mobile, customer.email, customer.business_name, customer.gst_no, customer.type, customer.address, customer.status, customer.notes]
-        );
-        console.log(`  ✅ Created customer: ${customer.name}`);
-      } else {
-        console.log(`  ⏭️  Customer already exists: ${customer.email}`);
-      }
+    // 1. Seed Products (80)
+    console.log(`📦 Seeding ${seedProducts.length} industrial products...`);
+    for (const p of seedProducts) {
+      await targetPool.query(
+        'INSERT INTO products (name, sku, category, unit_price, current_stock, min_stock_alert, location, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [p.name, p.sku, p.category, p.unit_price, p.current_stock, p.min_stock_alert, p.location, p.created_at]
+      );
     }
+    console.log(`  ✅ Inserted ${seedProducts.length} products`);
 
-    console.log('\n🎉 Database seed complete!');
+    // 2. Seed Customers (65)
+    console.log(`👥 Seeding ${seedCustomers.length} B2B customers...`);
+    for (const c of seedCustomers) {
+      await targetPool.query(
+        'INSERT INTO customers (name, mobile, email, business_name, gst_no, type, address, status, follow_up_date, notes, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+        [c.name, c.mobile, c.email, c.business_name, c.gst_no, c.type, c.address, c.status, c.follow_up_date, c.notes, c.created_at]
+      );
+    }
+    console.log(`  ✅ Inserted ${seedCustomers.length} customers`);
+
+    // 3. Seed Orders (150)
+    console.log(`📋 Seeding ${seedOrders.length} sales orders...`);
+    for (const o of seedOrders) {
+      await targetPool.query(
+        'INSERT INTO orders (order_number, customer_id, status, total_quantity, created_by, created_at) VALUES ($1, $2, $3, $4, $5, $6)',
+        [o.order_number, o.customer_id, o.status, o.total_quantity, o.created_by, o.created_at]
+      );
+    }
+    console.log(`  ✅ Inserted ${seedOrders.length} orders`);
+
+    // 4. Seed Order Items (314)
+    console.log(`📑 Seeding ${seedOrderItems.length} order line items...`);
+    for (const item of seedOrderItems) {
+      await targetPool.query(
+        'INSERT INTO order_items (order_id, product_id, product_name_snapshot, product_price_snapshot, quantity) VALUES ($1, $2, $3, $4, $5)',
+        [item.order_id, item.product_id, item.product_name_snapshot, item.product_price_snapshot, item.quantity]
+      );
+    }
+    console.log(`  ✅ Inserted ${seedOrderItems.length} order items`);
+
+    // 5. Seed Stock Movements (440)
+    console.log(`🔄 Seeding ${seedStockMovements.length} reconciled stock movements...`);
+    for (const m of seedStockMovements) {
+      await targetPool.query(
+        'INSERT INTO stock_movements (product_id, quantity_changed, movement_type, reason, created_by, created_at) VALUES ($1, $2, $3, $4, $5, $6)',
+        [m.product_id, m.quantity_changed, m.movement_type, m.reason, m.created_by, m.created_at]
+      );
+    }
+    console.log(`  ✅ Inserted ${seedStockMovements.length} stock movements`);
+
+    console.log('\n🎉 Enterprise database seed complete!');
   } catch (error) {
     console.error('❌ Seed failed:', error);
     throw error;
+  } finally {
+    isSeeding = false;
   }
 }
 

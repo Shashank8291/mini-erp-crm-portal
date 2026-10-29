@@ -1,4 +1,14 @@
 // Intelligent client-side mock adapter fallback for offline, serverless, or static deployments
+import {
+  demoCustomers,
+  demoProducts,
+  demoOrders,
+  demoStockMovements,
+  type DemoCustomer,
+  type DemoProduct,
+  type DemoOrder,
+  type DemoStockMovement,
+} from './demoData';
 
 interface MockUser {
   id: number;
@@ -8,6 +18,8 @@ interface MockUser {
   mobile: string;
 }
 
+const DATASET_VERSION = 'v3.5_enterprise_b2b';
+
 const mockUsers: Record<string, { pass: string; user: MockUser }> = {
   'admin@erp.com': { pass: 'Admin@123', user: { id: 1, name: 'Admin User', email: 'admin@erp.com', role: 'Admin', mobile: '+91 98765 00001' } },
   'sales@erp.com': { pass: 'Sales@123', user: { id: 2, name: 'Sales Representative', email: 'sales@erp.com', role: 'Sales', mobile: '+91 98765 00002' } },
@@ -15,166 +27,22 @@ const mockUsers: Record<string, { pass: string; user: MockUser }> = {
   'accounts@erp.com': { pass: 'Accounts@123', user: { id: 4, name: 'Accounts Manager', email: 'accounts@erp.com', role: 'Accounts', mobile: '+91 98765 00004' } },
 };
 
-const initialCustomers = [
-  {
-    id: 1,
-    name: 'Rajesh Sharma',
-    mobile: '+91 98765 43210',
-    email: 'rajesh@apexretail.com',
-    business_name: 'Apex Retailers Ltd',
-    gst_no: '27AAACA123411Z5',
-    type: 'Wholesale',
-    address: '102 Industrial Area, Sector 4, Mumbai',
-    status: 'Active',
-    follow_up_date: '2026-07-25',
-    notes: 'Interested in bulk order of electronics for Q3 sale.',
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Priya Patel',
-    mobile: '+91 91234 56789',
-    email: 'priya@bluestar.in',
-    business_name: 'Blue Star Electronics',
-    gst_no: '24BBBCB567822Z9',
-    type: 'Retail',
-    address: 'Shop 14, City Mall, MG Road, Ahmedabad',
-    status: 'Active',
-    follow_up_date: '2026-07-28',
-    notes: 'Requested product catalogue with wholesale prices.',
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: 3,
-    name: 'Amit Verma',
-    mobile: '+91 99887 76655',
-    email: 'amit@vermatraders.co',
-    business_name: 'Verma Traders & Distributors',
-    gst_no: '07CCCC123433Z1',
-    type: 'Distributor',
-    address: 'Warehouse 8, Transport Nagar, Delhi',
-    status: 'Lead',
-    follow_up_date: '2026-07-22',
-    notes: 'Initial discussion done. Follow up for first purchase order.',
-    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
-
-const initialProducts = [
-  {
-    id: 1,
-    name: 'Wireless Bluetooth Headphones Pro',
-    sku: 'SKU-ELEC-001',
-    category: 'Electronics',
-    unit_price: 2499.0,
-    current_stock: 50,
-    min_stock_alert: 10,
-    location: 'Aisle 3, Rack B',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Smart Fitness Tracker Watch',
-    sku: 'SKU-ELEC-002',
-    category: 'Electronics',
-    unit_price: 1899.0,
-    current_stock: 8,
-    min_stock_alert: 15,
-    location: 'Aisle 1, Rack A',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    name: 'Ultra-Slim Power Bank 20000mAh',
-    sku: 'SKU-ELEC-003',
-    category: 'Accessories',
-    unit_price: 1299.0,
-    current_stock: 120,
-    min_stock_alert: 25,
-    location: 'Aisle 2, Rack C',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 4,
-    name: 'Noise-Canceling Wireless Earbuds',
-    sku: 'SKU-ELEC-004',
-    category: 'Electronics',
-    unit_price: 3499.0,
-    current_stock: 4,
-    min_stock_alert: 20,
-    location: 'Aisle 1, Rack C',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 5,
-    name: 'Fast Charging USB-C Cable (Pack of 3)',
-    sku: 'SKU-ELEC-005',
-    category: 'Cables',
-    unit_price: 499.0,
-    current_stock: 250,
-    min_stock_alert: 50,
-    location: 'Aisle 4, Rack A',
-    created_at: new Date().toISOString(),
-  },
-];
-
-const initialStockMovements = [
-  {
-    id: 1,
-    product_id: 1,
-    product_name: 'Wireless Bluetooth Headphones Pro',
-    sku: 'SKU-ELEC-001',
-    quantity_changed: 50,
-    movement_type: 'IN',
-    reason: 'Initial supplier shipment receipt',
-    created_by_name: 'Warehouse Officer',
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: 2,
-    product_id: 2,
-    product_name: 'Smart Fitness Tracker Watch',
-    sku: 'SKU-ELEC-002',
-    quantity_changed: 8,
-    movement_type: 'IN',
-    reason: 'Restocking batch #41',
-    created_by_name: 'Warehouse Officer',
-    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
-
-const initialOrders = [
-  {
-    id: 1,
-    order_number: 'ORD-20261029-0001',
-    customer_id: 1,
-    customer_name: 'Rajesh Sharma',
-    business_name: 'Apex Retailers Ltd',
-    status: 'Confirmed',
-    total_quantity: 12,
-    total_amount: 29988,
-    created_by_name: 'Sales Representative',
-    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-    items: [
-      {
-        id: 1,
-        product_id: 1,
-        product_name_snapshot: 'Wireless Bluetooth Headphones Pro',
-        product_price_snapshot: 2499.0,
-        quantity: 12,
-      },
-    ],
-  },
-];
-
 class MockStore {
-  customers = [...initialCustomers];
-  products = [...initialProducts];
-  stockMovements = [...initialStockMovements];
-  orders = [...initialOrders];
+  customers: DemoCustomer[] = [...demoCustomers];
+  products: DemoProduct[] = [...demoProducts];
+  stockMovements: DemoStockMovement[] = [...demoStockMovements];
+  orders: DemoOrder[] = [...demoOrders];
 
   constructor() {
     try {
+      const storedVersion = localStorage.getItem('erp_mock_dataset_version');
+      if (storedVersion !== DATASET_VERSION) {
+        // Automatically upgrade/refresh to the enterprise demo dataset
+        this.save();
+        localStorage.setItem('erp_mock_dataset_version', DATASET_VERSION);
+        return;
+      }
+
       const savedCust = localStorage.getItem('erp_mock_customers');
       if (savedCust) this.customers = JSON.parse(savedCust);
 
@@ -197,17 +65,21 @@ class MockStore {
       localStorage.setItem('erp_mock_products', JSON.stringify(this.products));
       localStorage.setItem('erp_mock_orders', JSON.stringify(this.orders));
       localStorage.setItem('erp_mock_movements', JSON.stringify(this.stockMovements));
+      localStorage.setItem('erp_mock_dataset_version', DATASET_VERSION);
     } catch {}
   }
 
   handle(config: any): { status: number; data: any } | null {
-    const url = (config.url || '').replace(/^\/api/, '');
+    const rawUrl = (config.url || '').replace(/^\/api/, '');
+    const [pathPart] = rawUrl.split('?');
+    const url = pathPart;
     const method = (config.method || 'get').toLowerCase();
+    const params = config.params || {};
 
     // 1. Auth: /auth/login
     if (url === '/auth/login' && method === 'post') {
       const { email, password } = JSON.parse(config.data || '{}');
-      const found = mockUsers[email.toLowerCase()];
+      const found = mockUsers[email?.toLowerCase()];
       if (found && found.pass === password) {
         return {
           status: 200,
@@ -287,11 +159,46 @@ class MockStore {
           const cust = this.customers.find((c) => c.id === parseInt(idMatch[1]));
           return { status: 200, data: { success: true, data: cust } };
         }
+
+        // List / Search / Filter / Paginate
+        let list = [...this.customers];
+        const search = (params.search || '').trim().toLowerCase();
+        const status = params.status;
+        const type = params.type;
+
+        if (status) {
+          list = list.filter((c) => c.status === status);
+        }
+        if (type) {
+          list = list.filter((c) => c.type === type);
+        }
+        if (search) {
+          list = list.filter(
+            (c) =>
+              c.name.toLowerCase().includes(search) ||
+              c.business_name.toLowerCase().includes(search) ||
+              (c.email && c.email.toLowerCase().includes(search)) ||
+              (c.gst_no && c.gst_no.toLowerCase().includes(search))
+          );
+        }
+
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 10;
+        const total = list.length;
+        const start = (page - 1) * limit;
+        const sliced = list.slice(start, start + limit);
+
         return {
           status: 200,
           data: {
             success: true,
-            data: { customers: this.customers, total: this.customers.length, page: 1, limit: 50 },
+            data: sliced,
+            pagination: {
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit) || 1,
+            },
           },
         };
       }
@@ -303,7 +210,7 @@ class MockStore {
           if (idMatch) {
             const cust = this.customers.find((c) => c.id === parseInt(idMatch[1]));
             if (cust) {
-              const dateStr = new Date().toLocaleDateString();
+              const dateStr = new Date().toLocaleDateString('en-IN');
               cust.notes = cust.notes ? `${cust.notes}\n[${dateStr}] ${body.note}` : `[${dateStr}] ${body.note}`;
               this.save();
               return { status: 200, data: { success: true, data: cust } };
@@ -311,7 +218,7 @@ class MockStore {
           }
         }
         const body = JSON.parse(config.data || '{}');
-        const newCust = {
+        const newCust: DemoCustomer = {
           id: Date.now(),
           ...body,
           created_at: new Date().toISOString(),
@@ -344,18 +251,59 @@ class MockStore {
           const movs = this.stockMovements.filter((m) => m.product_id === pid);
           return { status: 200, data: { success: true, data: movs } };
         }
+
+        const idMatch = url.match(/^\/products\/(\d+)$/);
+        if (idMatch) {
+          const prod = this.products.find((p) => p.id === parseInt(idMatch[1]));
+          return { status: 200, data: { success: true, data: prod } };
+        }
+
+        // List / Search / Filter / Paginate
+        let list = [...this.products];
+        const search = (params.search || '').trim().toLowerCase();
+        const lowStockOnly = params.lowStock === 'true' || params.lowStock === true;
+        const category = params.category;
+
+        if (lowStockOnly) {
+          list = list.filter((p) => p.current_stock <= p.min_stock_alert);
+        }
+        if (category) {
+          list = list.filter((p) => p.category === category);
+        }
+        if (search) {
+          list = list.filter(
+            (p) =>
+              p.name.toLowerCase().includes(search) ||
+              p.sku.toLowerCase().includes(search) ||
+              p.category.toLowerCase().includes(search) ||
+              p.location.toLowerCase().includes(search)
+          );
+        }
+
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 10;
+        const total = list.length;
+        const start = (page - 1) * limit;
+        const sliced = list.slice(start, start + limit);
+
         return {
           status: 200,
           data: {
             success: true,
-            data: { products: this.products, total: this.products.length, page: 1, limit: 50 },
+            data: sliced,
+            pagination: {
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit) || 1,
+            },
           },
         };
       }
 
       if (method === 'post') {
         const body = JSON.parse(config.data || '{}');
-        const newProd = {
+        const newProd: DemoProduct = {
           id: Date.now(),
           ...body,
           current_stock: parseInt(body.current_stock || '0'),
@@ -385,16 +333,32 @@ class MockStore {
     // 7. Stock Movements
     if (url.startsWith('/stock')) {
       if (method === 'get') {
+        let list = [...this.stockMovements];
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 15;
+        const total = list.length;
+        const start = (page - 1) * limit;
+        const sliced = list.slice(start, start + limit);
+
         return {
           status: 200,
-          data: { success: true, data: this.stockMovements },
+          data: {
+            success: true,
+            data: sliced,
+            pagination: {
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit) || 1,
+            },
+          },
         };
       }
 
       if (method === 'post') {
         const body = JSON.parse(config.data || '{}');
         const prod = this.products.find((p) => p.id === parseInt(body.product_id));
-        const qty = parseInt(body.quantity_changed);
+        const qty = parseInt(body.quantity || body.quantity_changed);
         if (prod) {
           if (body.movement_type === 'IN') {
             prod.current_stock += qty;
@@ -405,7 +369,7 @@ class MockStore {
             prod.current_stock -= qty;
           }
         }
-        const mov = {
+        const mov: DemoStockMovement = {
           id: Date.now(),
           product_id: parseInt(body.product_id),
           product_name: prod ? prod.name : 'Unknown Product',
@@ -413,7 +377,7 @@ class MockStore {
           quantity_changed: qty,
           movement_type: body.movement_type,
           reason: body.reason,
-          created_by_name: 'Authenticated User',
+          created_by_name: 'Warehouse Officer',
           created_at: new Date().toISOString(),
         };
         this.stockMovements.unshift(mov);
@@ -430,9 +394,42 @@ class MockStore {
           const order = this.orders.find((o) => o.id === parseInt(idMatch[1]));
           return { status: 200, data: { success: true, data: order } };
         }
+
+        // List / Search / Filter / Paginate
+        let list = [...this.orders];
+        const search = (params.search || '').trim().toLowerCase();
+        const status = params.status;
+
+        if (status) {
+          list = list.filter((o) => o.status === status);
+        }
+        if (search) {
+          list = list.filter(
+            (o) =>
+              o.order_number.toLowerCase().includes(search) ||
+              o.customer_name.toLowerCase().includes(search) ||
+              o.business_name.toLowerCase().includes(search)
+          );
+        }
+
+        const page = parseInt(params.page) || 1;
+        const limit = parseInt(params.limit) || 10;
+        const total = list.length;
+        const start = (page - 1) * limit;
+        const sliced = list.slice(start, start + limit);
+
         return {
           status: 200,
-          data: { success: true, data: this.orders },
+          data: {
+            success: true,
+            data: sliced,
+            pagination: {
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit) || 1,
+            },
+          },
         };
       }
 
@@ -452,10 +449,23 @@ class MockStore {
 
           if (body.status === 'Confirmed' && prod) {
             prod.current_stock = Math.max(0, prod.current_stock - q);
+            // Append stock movement
+            this.stockMovements.unshift({
+              id: Date.now() + idx,
+              product_id: prod.id,
+              product_name: prod.name,
+              sku: prod.sku,
+              quantity_changed: q,
+              movement_type: 'OUT',
+              reason: `Order placed and confirmed`,
+              created_by_name: 'Sales Representative',
+              created_at: new Date().toISOString(),
+            });
           }
 
           return {
             id: Date.now() + idx,
+            order_id: 0,
             product_id: parseInt(it.product_id),
             product_name_snapshot: name,
             product_price_snapshot: price,
@@ -463,7 +473,7 @@ class MockStore {
           };
         });
 
-        const newOrder = {
+        const newOrder: DemoOrder = {
           id: Date.now(),
           order_number: 'ORD-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 9000) + 1000),
           customer_id: parseInt(body.customer_id),
@@ -472,10 +482,12 @@ class MockStore {
           status: body.status || 'Draft',
           total_quantity: totalQty,
           total_amount: totalAmt,
-          created_by_name: 'Current User',
+          created_by_name: 'Sales Representative',
           created_at: new Date().toISOString(),
           items,
         };
+        newOrder.items.forEach(it => it.order_id = newOrder.id);
+
         this.orders.unshift(newOrder);
         this.save();
         return { status: 201, data: { success: true, data: newOrder, message: 'Order created' } };
@@ -487,7 +499,52 @@ class MockStore {
           const body = JSON.parse(config.data || '{}');
           const order = this.orders.find((o) => o.id === parseInt(statusMatch[1]));
           if (order) {
-            order.status = body.status;
+            const oldStatus = order.status;
+            const newStatus = body.status;
+            order.status = newStatus;
+
+            // If transitioning to Confirmed, deduct stock
+            if (oldStatus === 'Draft' && newStatus === 'Confirmed') {
+              for (const it of order.items) {
+                const prod = this.products.find(p => p.id === it.product_id);
+                if (prod) {
+                  prod.current_stock = Math.max(0, prod.current_stock - it.quantity);
+                  this.stockMovements.unshift({
+                    id: Date.now() + it.id,
+                    product_id: prod.id,
+                    product_name: prod.name,
+                    sku: prod.sku,
+                    quantity_changed: it.quantity,
+                    movement_type: 'OUT',
+                    reason: `Order ${order.order_number} confirmed`,
+                    created_by_name: 'Sales Representative',
+                    created_at: new Date().toISOString(),
+                  });
+                }
+              }
+            }
+
+            // If transitioning from Confirmed to Cancelled, restore stock
+            if (oldStatus === 'Confirmed' && newStatus === 'Cancelled') {
+              for (const it of order.items) {
+                const prod = this.products.find(p => p.id === it.product_id);
+                if (prod) {
+                  prod.current_stock += it.quantity;
+                  this.stockMovements.unshift({
+                    id: Date.now() + it.id,
+                    product_id: prod.id,
+                    product_name: prod.name,
+                    sku: prod.sku,
+                    quantity_changed: it.quantity,
+                    movement_type: 'IN',
+                    reason: `Order ${order.order_number} cancelled - stock restored`,
+                    created_by_name: 'Warehouse Officer',
+                    created_at: new Date().toISOString(),
+                  });
+                }
+              }
+            }
+
             this.save();
             return { status: 200, data: { success: true, data: order } };
           }
@@ -500,4 +557,3 @@ class MockStore {
 }
 
 export const mockStore = new MockStore();
-
