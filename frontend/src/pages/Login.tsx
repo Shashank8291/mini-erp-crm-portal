@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
-import ThreeBackground from '../components/ThreeBackground';
+import HexagonBackground from '../components/HexagonBackground';
 import LogoIcon from '../components/LogoIcon';
 
 export default function Login() {
@@ -43,7 +43,7 @@ export default function Login() {
 
   return (
     <>
-      <ThreeBackground />
+      <HexagonBackground />
       <div className="login-page">
         <div className="login-card glass-card-static animate-slideUp">
           <div className="login-header">

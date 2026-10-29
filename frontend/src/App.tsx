@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
-import ThreeBackground from './components/ThreeBackground';
+import HexagonBackground from './components/HexagonBackground';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
@@ -22,7 +22,7 @@ function AppLayout() {
 
   return (
     <>
-      <ThreeBackground />
+      <HexagonBackground />
       <div className="app-layout">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(!sidebarOpen)} />
         <main className="main-content">
