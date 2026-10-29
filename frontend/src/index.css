@@ -1,68 +1,72 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ============================================================
-   DESIGN SYSTEM — Enterprise SaaS Light Theme
-   Inspired by modern Smart KPI Dashboards
+   DESIGN SYSTEM — Enterprise Dark SaaS + 3D Hexagon Integration
+   Combines original dark charcoal/navy 3D hexagon background
+   with new Smart KPI cards, Lucide icons, and modern components
    ============================================================ */
 
 :root {
-  /* Surface & Background */
-  --color-bg-app: #f8fafc;        /* Slate 50 */
-  --color-bg-surface: #ffffff;    /* Pure White */
-  --color-bg-subtle: #f1f5f9;     /* Slate 100 */
-  --color-bg-muted: #e2e8f0;      /* Slate 200 */
-  --color-bg-sidebar: #ffffff;    /* Sidebar White */
-  --color-bg-card: #ffffff;       /* Card White */
-  --color-bg-input: #ffffff;
+  /* Surfaces & Backgrounds */
+  --color-bg-app: #0B1018;             /* Charcoal Deep Navy Canvas */
+  --color-bg-surface: rgba(16, 24, 39, 0.72);   /* Dark Slate Card Glass */
+  --color-bg-subtle: rgba(22, 32, 51, 0.65);    /* Elevated Surface */
+  --color-bg-muted: rgba(30, 41, 59, 0.5);      /* Section Background */
+  --color-bg-sidebar: rgba(11, 16, 26, 0.94);   /* Deep Sidebar Glass */
+  --color-bg-card: rgba(16, 24, 39, 0.72);      /* Glassmorphic KPI Surface */
+  --color-bg-input: rgba(11, 16, 26, 0.8);      /* Input Dark Surface */
 
-  /* Primary Brand (Indigo / Modern SaaS) */
-  --color-primary: #4f46e5;       /* Indigo 600 */
-  --color-primary-hover: #4338ca; /* Indigo 700 */
-  --color-primary-light: #e0e7ff; /* Indigo 100 */
-  --color-primary-subtle: #eef2ff;/* Indigo 50 */
-  --color-primary-dark: #3730a3;  /* Indigo 800 */
+  /* Primary Brand (Modern SaaS Indigo / Blue) */
+  --color-primary: #6366f1;            /* Indigo 500 */
+  --color-primary-hover: #4f46e5;      /* Indigo 600 */
+  --color-primary-light: #818cf8;      /* Indigo 400 */
+  --color-primary-subtle: rgba(99, 102, 241, 0.15); /* Pill Tint */
+  --color-primary-dark: #4338ca;
 
   /* Secondary & Informational */
-  --color-secondary: #0ea5e9;     /* Sky 500 */
-  --color-secondary-light: #e0f2fe;
-  --color-info: #2563eb;          /* Blue 600 */
-  --color-info-light: #eff6ff;
+  --color-secondary: #0ea5e9;          /* Sky 500 */
+  --color-secondary-light: #38bdf8;
+  --color-info: #3b82f6;               /* Blue 500 */
+  --color-info-light: #60a5fa;
 
   /* Semantic Status Colors */
-  --color-success: #10b981;       /* Emerald 500 */
-  --color-success-dark: #059669;  /* Emerald 600 */
-  --color-success-bg: #ecfdf5;    /* Emerald 50 */
-  --color-success-border: #a7f3d0;
+  --color-success: #10b981;            /* Emerald 500 */
+  --color-success-dark: #34d399;       /* Emerald 400 */
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-success-border: rgba(16, 185, 129, 0.3);
 
-  --color-warning: #f59e0b;       /* Amber 500 */
-  --color-warning-dark: #d97706;  /* Amber 600 */
-  --color-warning-bg: #fffbeb;    /* Amber 50 */
-  --color-warning-border: #fde68a;
+  --color-warning: #f59e0b;            /* Amber 500 */
+  --color-warning-dark: #fbbf24;       /* Amber 400 */
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-warning-border: rgba(245, 158, 11, 0.3);
 
-  --color-error: #ef4444;         /* Rose 500 */
-  --color-error-dark: #dc2626;    /* Rose 600 */
-  --color-error-bg: #fef2f2;      /* Rose 50 */
-  --color-error-border: #fecaca;
+  --color-error: #ef4444;              /* Rose 500 */
+  --color-error-dark: #f87171;         /* Rose 400 */
+  --color-error-bg: rgba(239, 68, 68, 0.15);
+  --color-error-border: rgba(239, 68, 68, 0.3);
 
-  /* Typography Colors */
-  --color-text-primary: #0f172a;   /* Slate 900 */
-  --color-text-secondary: #475569; /* Slate 600 */
-  --color-text-muted: #94a3b8;     /* Slate 400 */
-  --color-text-inverse: #ffffff;
+  /* Typography Colors (High Contrast on Dark) */
+  --color-text-primary: #f8fafc;        /* Slate 50 */
+  --color-text-secondary: #94a3b8;      /* Slate 400 */
+  --color-text-muted: #64748b;          /* Slate 500 */
+  --color-text-inverse: #0B1018;
 
   /* Borders & Dividers */
-  --color-border: #e2e8f0;         /* Slate 200 */
-  --color-border-subtle: #f1f5f9;  /* Slate 100 */
-  --color-border-hover: #cbd5e1;   /* Slate 300 */
-  --color-border-focus: #4f46e5;
+  --color-border: rgba(148, 163, 184, 0.14);
+  --color-border-subtle: rgba(148, 163, 184, 0.08);
+  --color-border-hover: rgba(148, 163, 184, 0.28);
+  --color-border-focus: #6366f1;
 
   /* Enterprise Shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
-  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px 0 rgba(15, 23, 42, 0.03);
-  --shadow-card-hover: 0 8px 20px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 10px 25px -4px rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.15);
+
+  /* Glass Blur */
+  --glass-blur: blur(16px);
 
   /* Radii */
   --radius-xs: 4px;
@@ -112,6 +116,7 @@ body {
   color: var(--color-text-primary);
   line-height: 1.5;
   min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -123,24 +128,26 @@ body {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-primary-light);
   text-decoration: none;
   font-weight: 500;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-secondary-light);
 }
 
 /* ============================================================
-   APP LAYOUT
+   APP LAYOUT (Translucent for Hexagon Background)
    ============================================================ */
 
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--color-bg-app);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .main-content {
@@ -148,18 +155,22 @@ a:hover {
   margin-left: var(--sidebar-width);
   padding: var(--space-xl) var(--space-2xl);
   min-height: 100vh;
-  background-color: var(--color-bg-app);
+  background: transparent;
+  position: relative;
+  z-index: 1;
   transition: margin-left var(--transition-base);
 }
 
 /* ============================================================
-   SIDEBAR (Enterprise Light)
+   SIDEBAR (Complementary Dark Navy Surface)
    ============================================================ */
 
 .sidebar {
   width: var(--sidebar-width);
   height: 100vh;
   background: var(--color-bg-sidebar);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid var(--color-border);
   position: fixed;
   left: 0;
@@ -193,8 +204,8 @@ a:hover {
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--color-primary-light);
   padding: 2px 6px;
   border-radius: var(--radius-xs);
   letter-spacing: 0.5px;
@@ -237,13 +248,14 @@ a:hover {
 
 .sidebar-link:hover {
   color: var(--color-text-primary);
-  background: var(--color-bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-link.active {
-  color: var(--color-primary);
-  background: var(--color-primary-subtle);
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.18);
   font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
 .sidebar-link-icon {
@@ -257,7 +269,7 @@ a:hover {
 .sidebar-footer {
   padding: var(--space-md);
   border-top: 1px solid var(--color-border);
-  background: #fafafa;
+  background: rgba(11, 16, 26, 0.6);
 }
 
 .sidebar-user-card {
@@ -266,7 +278,7 @@ a:hover {
   gap: 10px;
   padding: 8px 10px;
   border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--color-border);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -274,7 +286,7 @@ a:hover {
 
 .sidebar-user-card:hover {
   border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-xs);
+  background: rgba(22, 32, 51, 0.8);
 }
 
 .sidebar-user-avatar {
@@ -326,7 +338,7 @@ a:hover {
 
 .sidebar-logout-btn:hover {
   background: var(--color-error-bg);
-  color: var(--color-error);
+  color: var(--color-error-dark);
 }
 
 /* ============================================================
@@ -352,7 +364,7 @@ a:hover {
 }
 
 .breadcrumb-separator {
-  color: #cbd5e1;
+  color: #475569;
 }
 
 .page-title {
@@ -376,7 +388,7 @@ a:hover {
 }
 
 /* ============================================================
-   SMART KPI CARDS
+   SMART KPI CARDS (Adapted to Dark Hexagon Theme)
    ============================================================ */
 
 .kpi-grid {
@@ -388,6 +400,8 @@ a:hover {
 
 .kpi-card {
   background: var(--color-bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 20px;
@@ -404,8 +418,9 @@ a:hover {
 }
 
 .kpi-card.clickable:hover {
+  background: rgba(22, 34, 55, 0.82);
+  border-color: rgba(99, 102, 241, 0.35);
   box-shadow: var(--shadow-card-hover);
-  border-color: var(--color-border-hover);
   transform: translateY(-2px);
 }
 
@@ -433,35 +448,35 @@ a:hover {
   flex-shrink: 0;
 }
 
-/* Tinted icon backgrounds */
+/* Tinted icon backgrounds on Dark */
 .kpi-icon-indigo {
-  background: #eef2ff;
-  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.16);
+  color: #a5b4fc;
 }
 
 .kpi-icon-blue {
-  background: #eff6ff;
-  color: #2563eb;
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
 }
 
 .kpi-icon-emerald {
-  background: #ecfdf5;
-  color: #059669;
+  background: rgba(16, 185, 129, 0.16);
+  color: #6ee7b7;
 }
 
 .kpi-icon-amber {
-  background: #fffbeb;
-  color: #d97706;
+  background: rgba(245, 158, 11, 0.16);
+  color: #fcd34d;
 }
 
 .kpi-icon-sky {
-  background: #f0f9ff;
-  color: #0284c7;
+  background: rgba(14, 165, 233, 0.16);
+  color: #7dd3fc;
 }
 
 .kpi-icon-rose {
-  background: #fff1f2;
-  color: #e11d48;
+  background: rgba(244, 63, 94, 0.16);
+  color: #fda4af;
 }
 
 .kpi-value {
@@ -503,11 +518,13 @@ a:hover {
 }
 
 /* ============================================================
-   WHITE SURFACES & CARDS
+   DARK SLATE SURFACES & CARDS
    ============================================================ */
 
 .card {
   background: var(--color-bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -517,11 +534,11 @@ a:hover {
 
 .card-header {
   padding: 18px 22px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
+  background: transparent;
 }
 
 .card-title {
@@ -543,10 +560,12 @@ a:hover {
   padding: 22px;
 }
 
-/* Legacy aliases for backwards compatibility */
+/* Legacy aliases for compatibility */
 .glass-card,
 .glass-card-static {
   background: var(--color-bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -554,12 +573,13 @@ a:hover {
 }
 
 .glass-card:hover {
+  background: rgba(22, 34, 55, 0.82);
   box-shadow: var(--shadow-card-hover);
   border-color: var(--color-border-hover);
 }
 
 /* ============================================================
-   BUTTONS (SaaS Light Style)
+   BUTTONS (SaaS Dark Style)
    ============================================================ */
 
 .btn {
@@ -580,34 +600,33 @@ a:hover {
 }
 
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btn-primary {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: #ffffff;
-  border-color: var(--color-primary);
-  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
-  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.5);
 }
 
 .btn-secondary {
-  background: #ffffff;
-  color: var(--color-text-secondary);
-  border-color: var(--color-border);
+  background: rgba(30, 41, 59, 0.7);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: var(--shadow-xs);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
-  border-color: var(--color-border-hover);
+  background: rgba(51, 65, 85, 0.85);
+  color: #ffffff;
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .btn-ghost {
@@ -617,27 +636,28 @@ a:hover {
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
 }
 
 .btn-success {
-  background: var(--color-success);
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: #ffffff;
 }
 
 .btn-success:hover:not(:disabled) {
-  background: var(--color-success-dark);
+  background: #047857;
 }
 
 .btn-danger {
-  background: #ffffff;
-  color: var(--color-error);
-  border-color: var(--color-error-border);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: var(--color-error-bg);
+  background: rgba(239, 68, 68, 0.25);
+  color: #ffffff;
 }
 
 .btn-sm {
@@ -732,8 +752,8 @@ a:hover {
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .form-input::placeholder {
@@ -742,12 +762,17 @@ a:hover {
 
 .form-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 10px center;
   background-repeat: no-repeat;
   background-size: 18px;
   padding-right: 36px;
   cursor: pointer;
+}
+
+.form-select option {
+  background: #0f172a;
+  color: #f8fafc;
 }
 
 .form-row {
@@ -757,18 +782,31 @@ a:hover {
 }
 
 .form-error {
-  color: var(--color-error);
+  color: var(--color-error-dark);
   font-size: 0.775rem;
   margin-top: 4px;
 }
 
+/* Browser autofill override on dark */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0b1018 inset !important;
+  box-shadow: 0 0 0px 1000px #0b1018 inset !important;
+  border-color: var(--color-border) !important;
+}
+
 /* ============================================================
-   DATA TABLE
+   DATA TABLE (Dark Slate Surfaces)
    ============================================================ */
 
 .table-container {
   overflow-x: auto;
   background: var(--color-bg-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -782,7 +820,7 @@ a:hover {
 }
 
 .data-table thead th {
-  background: #f8fafc;
+  background: rgba(11, 16, 26, 0.65);
   padding: 12px 18px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -802,13 +840,13 @@ a:hover {
 }
 
 .data-table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: rgba(30, 41, 59, 0.4);
 }
 
 .data-table tbody td {
   padding: 14px 18px;
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: #cbd5e1;
   vertical-align: middle;
 }
 
@@ -820,12 +858,12 @@ a:hover {
 .td-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.825rem !important;
-  color: var(--color-primary) !important;
+  color: #38bdf8 !important;
   font-weight: 600 !important;
 }
 
 /* ============================================================
-   STATUS BADGES
+   STATUS BADGES (Dark Adapted)
    ============================================================ */
 
 .badge {
@@ -852,9 +890,9 @@ a:hover {
 .badge-draft,
 .badge-wholesale,
 .badge-retail {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .badge-inactive,
@@ -882,8 +920,8 @@ a:hover {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -893,10 +931,12 @@ a:hover {
 }
 
 .modal-content {
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -911,7 +951,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .modal-header h2 {
@@ -934,7 +974,7 @@ a:hover {
 }
 
 .modal-close:hover {
-  background: var(--color-bg-subtle);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--color-text-primary);
 }
 
@@ -948,8 +988,8 @@ a:hover {
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 24px;
-  border-top: 1px solid var(--color-border);
-  background: #f8fafc;
+  border-top: 1px solid var(--color-border-subtle);
+  background: rgba(11, 16, 26, 0.5);
 }
 
 /* ============================================================
@@ -963,7 +1003,7 @@ a:hover {
 }
 
 .detail-section {
-  background: #f8fafc;
+  background: rgba(11, 16, 26, 0.55);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 16px;
@@ -977,7 +1017,7 @@ a:hover {
   letter-spacing: 0.5px;
   margin-bottom: 12px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .detail-row {
@@ -989,7 +1029,7 @@ a:hover {
 }
 
 .detail-row:not(:last-child) {
-  border-bottom: 1px dashed var(--color-border);
+  border-bottom: 1px dashed var(--color-border-subtle);
 }
 
 .detail-label {
@@ -1015,11 +1055,11 @@ a:hover {
 
 .note-item {
   padding: 10px 14px;
-  background: #f8fafc;
+  background: rgba(11, 16, 26, 0.55);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: #cbd5e1;
   line-height: 1.4;
 }
 
@@ -1033,7 +1073,7 @@ a:hover {
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
-  background: #f8fafc;
+  background: rgba(11, 16, 26, 0.55);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   margin-bottom: 8px;
@@ -1044,7 +1084,7 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: #f1f5f9;
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   margin-top: 16px;
@@ -1059,7 +1099,7 @@ a:hover {
 .order-summary-value {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-light);
 }
 
 /* ============================================================
@@ -1077,10 +1117,10 @@ a:hover {
 
 .pagination-btn {
   padding: 6px 12px;
-  background: #ffffff;
+  background: rgba(30, 41, 59, 0.5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
+  color: #cbd5e1;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -1088,8 +1128,8 @@ a:hover {
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
+  background: rgba(51, 65, 85, 0.7);
+  color: #ffffff;
   border-color: var(--color-border-hover);
 }
 
@@ -1100,7 +1140,7 @@ a:hover {
 }
 
 .pagination-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
@@ -1127,7 +1167,7 @@ a:hover {
   width: 52px;
   height: 52px;
   border-radius: var(--radius-full);
-  background: var(--color-bg-subtle);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-muted);
   display: flex;
   align-items: center;
@@ -1160,7 +1200,7 @@ a:hover {
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-primary-light);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -1186,7 +1226,7 @@ a:hover {
 }
 
 /* ============================================================
-   LOGIN PAGE (Modern SaaS White Surface)
+   LOGIN PAGE (Dark Slate Surface over 3D Hexagons)
    ============================================================ */
 
 .login-page {
@@ -1194,17 +1234,21 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f1f5f9;
+  background: transparent;
   padding: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .login-card {
   width: 440px;
   max-width: 100%;
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   padding: 36px 32px;
 }
 
@@ -1287,7 +1331,8 @@ a:hover {
   z-index: 100;
   width: 38px;
   height: 38px;
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -1325,4 +1370,26 @@ a:hover {
   .order-item-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================================
+   SCROLLBAR (Dark Modern)
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.45);
 }

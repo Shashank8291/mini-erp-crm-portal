@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import LogoIcon from '../components/LogoIcon';
+import HexagonBackground from '../components/HexagonBackground';
 import { Mail, Lock, ArrowRight, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -44,8 +45,10 @@ export default function Login() {
   ];
 
   return (
-    <div className="login-page">
-      <div className="login-card">
+    <>
+      <HexagonBackground />
+      <div className="login-page">
+        <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
             <LogoIcon size={44} />
@@ -148,5 +151,6 @@ export default function Login() {
         </div>
       </div>
     </div>
+    </>
   );
 }

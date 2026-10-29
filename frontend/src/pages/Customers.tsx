@@ -180,9 +180,9 @@ export default function Customers() {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2',
-              border: `1px solid ${toast.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-              color: toast.type === 'success' ? '#065f46' : '#991b1b',
+              background: toast.type === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              border: `1px solid ${toast.type === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+              color: toast.type === 'success' ? '#34d399' : '#f87171',
             }}
           >
             {toast.type === 'success' ? (
