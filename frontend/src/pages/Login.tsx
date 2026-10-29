@@ -2,8 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
-import HexagonBackground from '../components/HexagonBackground';
 import LogoIcon from '../components/LogoIcon';
+import { Mail, Lock, ArrowRight, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,7 +27,9 @@ export default function Login() {
     } catch (err: any) {
       const msg =
         err.response?.data?.message ||
-        (err.response?.status ? `Server Error (${err.response.status}). Please try again.` : err.message || 'Login failed. Please check network connection.');
+        (err.response?.status
+          ? `Server Error (${err.response.status}). Please try again.`
+          : err.message || 'Login failed. Please check network connection.');
       setError(msg);
     } finally {
       setLoading(false);
@@ -35,82 +37,116 @@ export default function Login() {
   };
 
   const testCredentials = [
-    { role: 'Admin', email: 'admin@erp.com', password: 'Admin@123' },
-    { role: 'Sales', email: 'sales@erp.com', password: 'Sales@123' },
-    { role: 'Warehouse', email: 'warehouse@erp.com', password: 'Warehouse@123' },
-    { role: 'Accounts', email: 'accounts@erp.com', password: 'Accounts@123' },
+    { role: 'Admin', email: 'admin@erp.com', password: 'Admin@123', badgeColor: 'badge-confirmed' },
+    { role: 'Sales', email: 'sales@erp.com', password: 'Sales@123', badgeColor: 'badge-lead' },
+    { role: 'Warehouse', email: 'warehouse@erp.com', password: 'Warehouse@123', badgeColor: 'badge-distributor' },
+    { role: 'Accounts', email: 'accounts@erp.com', password: 'Accounts@123', badgeColor: 'badge-retail' },
   ];
 
   return (
-    <>
-      <HexagonBackground />
-      <div className="login-page">
-        <div className="login-card glass-card-static animate-slideUp">
-          <div className="login-header">
-            <div className="login-logo" style={{ background: 'none', boxShadow: 'none' }}>
-              <LogoIcon size={56} />
-            </div>
-            <h1>ERP + CRM Portal</h1>
-            <p>Sign in to your operations dashboard</p>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-header">
+          <div className="login-logo">
+            <LogoIcon size={44} />
           </div>
+          <h1>NexusERP Operations</h1>
+          <p>Sign in to your enterprise ERP + CRM dashboard</p>
+        </div>
 
-          {error && <div className="login-error">{error}</div>}
+        {error && (
+          <div className="login-error">
+            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-email">Email Address</label>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="login-email">
+              Email Address
+            </label>
+            <div className="search-input-wrapper" style={{ minWidth: 'unset' }}>
+              <span className="search-icon">
+                <Mail size={16} />
+              </span>
               <input
                 id="login-email"
                 type="email"
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="name@company.com"
                 required
                 autoFocus
               />
             </div>
+          </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-password">Password</label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="login-password">
+              Password
+            </label>
+            <div className="search-input-wrapper" style={{ minWidth: 'unset' }}>
+              <span className="search-icon">
+                <Lock size={16} />
+              </span>
               <input
                 id="login-password"
                 type="password"
                 className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="••••••••••••"
                 required
               />
             </div>
+          </div>
 
-            <button type="submit" className="btn btn-primary login-btn" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+          <button
+            type="submit"
+            className="btn btn-primary login-btn"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={16} className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign In <ArrowRight size={16} />
+              </>
+            )}
+          </button>
+        </form>
 
-          <div style={{ marginTop: '24px', borderTop: '1px solid rgba(148,163,184,0.1)', paddingTop: '16px' }}>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '8px', textAlign: 'center' }}>
-              Quick Login (Test Accounts)
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {testCredentials.map((cred) => (
-                <button
-                  key={cred.role}
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => {
-                    setEmail(cred.email);
-                    setPassword(cred.password);
-                  }}
-                >
-                  {cred.role}
-                </button>
-              ))}
-            </div>
+        <div className="test-accounts-section">
+          <div className="test-accounts-title">
+            <ShieldCheck size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            One-Click Test Profiles
+          </div>
+          <div className="test-accounts-grid">
+            {testCredentials.map((cred) => (
+              <button
+                key={cred.role}
+                type="button"
+                className="btn btn-secondary btn-sm"
+                style={{ justifyContent: 'space-between', padding: '7px 10px' }}
+                onClick={() => {
+                  setEmail(cred.email);
+                  setPassword(cred.password);
+                }}
+              >
+                <span>{cred.role}</span>
+                <span className={`badge ${cred.badgeColor}`} style={{ padding: '1px 6px', fontSize: '0.65rem' }}>
+                  Demo
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

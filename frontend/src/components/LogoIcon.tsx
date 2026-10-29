@@ -8,71 +8,24 @@ export default function LogoIcon({ size = 32, className = '' }: LogoIconProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
+      viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      <defs>
-        <linearGradient id="erpGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0284c7" />
-          <stop offset="50%" stopColor="#0ea5e9" />
-          <stop offset="100%" stopColor="#38bdf8" />
-        </linearGradient>
-        <linearGradient id="erpGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0369a1" />
-          <stop offset="100%" stopColor="#0284c7" />
-        </linearGradient>
-        <linearGradient id="erpGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#e0f2fe" stopOpacity="0.9" />
-        </linearGradient>
-        <filter id="logoShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0284c7" floodOpacity="0.4" />
-        </filter>
-      </defs>
-
-      {/* Outer Hexagon Frame */}
+      <rect width="40" height="40" rx="10" fill="#4F46E5" />
       <path
-        d="M24 3L43.0526 14V34L24 45L4.94744 34V14L24 3Z"
-        fill="url(#erpGrad1)"
-        fillOpacity="0.15"
-        stroke="url(#erpGrad1)"
-        strokeWidth="2.5"
+        d="M20 9L29.5 14.5V25.5L20 31L10.5 25.5V14.5L20 9Z"
+        stroke="#E0E7FF"
+        strokeWidth="2"
         strokeLinejoin="round"
       />
-
-      {/* Layered ERP/CRM Isometric Blocks */}
-      {/* Top Diamond / Growth Roof */}
       <path
-        d="M24 10L35 16.5L24 23L13 16.5L24 10Z"
-        fill="url(#erpGrad1)"
-        filter="url(#logoShadow)"
-      />
-
-      {/* Left Wall / CRM Nodes */}
-      <path
-        d="M13 18.5L23 24.3V36.5L13 30.7V18.5Z"
-        fill="url(#erpGrad2)"
+        d="M20 14L25.5 17.5V23.5L20 27L14.5 23.5V17.5L20 14Z"
+        fill="#FFFFFF"
         fillOpacity="0.9"
       />
-
-      {/* Right Wall / ERP Data Core */}
-      <path
-        d="M25 24.3L35 18.5V30.7L25 36.5V24.3Z"
-        fill="url(#erpGrad1)"
-        fillOpacity="0.8"
-      />
-
-      {/* Upward Pulse Indicator Line */}
-      <path
-        d="M16 26L21 21L26 24L32 17"
-        stroke="url(#erpGlow)"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="32" cy="17" r="2" fill="#ffffff" />
+      <circle cx="20" cy="20" r="2.5" fill="#4F46E5" />
     </svg>
   );
 }

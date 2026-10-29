@@ -1,6 +1,16 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LogoIcon from './LogoIcon';
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  ArrowLeftRight,
+  ClipboardList,
+  LogOut,
+  Menu,
+  X,
+} from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,75 +27,110 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   const navItems = [
-    { path: '/dashboard', icon: '📊', label: 'Dashboard', roles: ['Admin', 'Sales', 'Warehouse', 'Accounts'] },
-    { path: '/customers', icon: '👥', label: 'Customers', roles: ['Admin', 'Sales', 'Accounts'] },
-    { path: '/products', icon: '📦', label: 'Products', roles: ['Admin', 'Sales', 'Warehouse', 'Accounts'] },
-    { path: '/stock', icon: '🏭', label: 'Stock Movements', roles: ['Admin', 'Warehouse'] },
-    { path: '/orders', icon: '📋', label: 'Sales Orders', roles: ['Admin', 'Sales', 'Accounts'] },
+    {
+      path: '/dashboard',
+      icon: LayoutDashboard,
+      label: 'Dashboard',
+      roles: ['Admin', 'Sales', 'Warehouse', 'Accounts'],
+    },
+    {
+      path: '/customers',
+      icon: Users,
+      label: 'Customers',
+      roles: ['Admin', 'Sales', 'Accounts'],
+    },
+    {
+      path: '/products',
+      icon: Package,
+      label: 'Products',
+      roles: ['Admin', 'Sales', 'Warehouse', 'Accounts'],
+    },
+    {
+      path: '/stock',
+      icon: ArrowLeftRight,
+      label: 'Stock Movements',
+      roles: ['Admin', 'Warehouse'],
+    },
+    {
+      path: '/orders',
+      icon: ClipboardList,
+      label: 'Sales Orders',
+      roles: ['Admin', 'Sales', 'Accounts'],
+    },
   ];
 
   return (
     <>
-      <button className="hamburger" onClick={() => onClose()}>
-        {isOpen ? '✕' : '☰'}
+      <button
+        className="hamburger"
+        onClick={() => onClose()}
+        aria-label="Toggle navigation menu"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon" style={{ background: 'none', boxShadow: 'none' }}>
-            <LogoIcon size={38} />
+        <div className="sidebar-header">
+          <LogoIcon size={32} />
+          <div className="sidebar-brand-name">
+            NexusERP
+            <span className="sidebar-brand-badge">PRO</span>
           </div>
-          <h1>ERP Portal</h1>
         </div>
 
-        <div className="sidebar-section-title">Navigation</div>
+        <div className="sidebar-nav-container">
+          <div className="sidebar-nav-label">Main Menu</div>
+          <nav>
+            {navItems.map((item) => {
+              if (!hasRole(...item.roles)) return null;
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `sidebar-link ${isActive ? 'active' : ''}`
+                  }
+                  onClick={() => onClose()}
+                >
+                  <span className="sidebar-link-icon">
+                    <Icon size={18} strokeWidth={2} />
+                  </span>
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
+        </div>
 
-        <nav className="sidebar-nav">
-          {navItems.map((item) =>
-            hasRole(...item.roles) ? (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={() => onClose()}
-              >
-                <span className="sidebar-link-icon">{item.icon}</span>
-                {item.label}
-              </NavLink>
-            ) : null
-          )}
-        </nav>
-
-        <div
-          className="sidebar-user"
-          onClick={() => {
-            navigate('/profile');
-            onClose();
-          }}
-          style={{ cursor: 'pointer' }}
-          title="View Account Settings"
-        >
-          <div className="sidebar-user-avatar">
-            {user?.name?.charAt(0) || '?'}
-          </div>
-          <div className="sidebar-user-info">
-            <div className="sidebar-user-name">{user?.name}</div>
-            <div className="sidebar-user-role">{user?.role}</div>
-          </div>
-          <button
-            className="logout-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLogout();
+        <div className="sidebar-footer">
+          <div
+            className="sidebar-user-card"
+            onClick={() => {
+              navigate('/profile');
+              onClose();
             }}
-            title="Logout"
+            title="Account Settings"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-          </button>
+            <div className="sidebar-user-avatar">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <div className="sidebar-user-details">
+              <div className="sidebar-user-name">{user?.name || 'User'}</div>
+              <div className="sidebar-user-role">{user?.role || 'Guest'}</div>
+            </div>
+            <button
+              className="sidebar-logout-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLogout();
+              }}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
       </aside>
     </>

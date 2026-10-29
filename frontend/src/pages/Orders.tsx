@@ -4,6 +4,23 @@ import { customersApi } from '../api/customers';
 import { productsApi } from '../api/products';
 import type { Order, Customer, Product } from '../types';
 import { useAuth } from '../context/AuthContext';
+import PageHeader from '../components/PageHeader';
+import KpiCard from '../components/KpiCard';
+import {
+  ClipboardList,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Plus,
+  Search,
+  Eye,
+  Check,
+  X,
+  Trash2,
+  AlertCircle,
+  FileText,
+  ShoppingBag,
+} from 'lucide-react';
 
 interface OrderItemInput {
   product_id: number;
@@ -18,6 +35,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
@@ -32,6 +50,7 @@ export default function Orders() {
   const [items, setItems] = useState<OrderItemInput[]>([]);
   const [addProductId, setAddProductId] = useState(0);
   const [addQuantity, setAddQuantity] = useState(1);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -41,8 +60,9 @@ export default function Orders() {
     try {
       setLoading(true);
       const res = await ordersApi.getAll({ page, limit: 10, status: statusFilter, search });
-      setOrders(res.data.data);
-      setTotalPages(res.data.pagination.totalPages);
+      setOrders(res.data.data || []);
+      setTotalPages(res.data.pagination?.totalPages || 1);
+      setTotalRecords(res.data.pagination?.total || (res.data.data?.length || 0));
     } catch (err) {
       console.error(err);
     } finally {
@@ -56,8 +76,8 @@ export default function Orders() {
         customersApi.getAll({ limit: 100 }),
         productsApi.getAll({ limit: 100 }),
       ]);
-      setCustomers(cusRes.data.data);
-      setProducts(prodRes.data.data);
+      setCustomers(cusRes.data.data || []);
+      setProducts(prodRes.data.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -72,59 +92,97 @@ export default function Orders() {
     await loadFormData();
     setSelectedCustomer(0);
     setItems([]);
+    setAddProductId(0);
+    setAddQuantity(1);
     setShowCreate(true);
   };
 
   const addItem = () => {
     if (!addProductId) return;
-    const product = products.find(p => p.id === addProductId);
+    const product = products.find((p) => p.id === addProductId);
     if (!product) return;
 
-    // Check if already added
-    if (items.find(i => i.product_id === addProductId)) {
-      showToast('error', 'Product already added');
+    if (items.find((i) => i.product_id === addProductId)) {
+      showToast('error', 'This item has already been added to the order lines');
       return;
     }
 
-    setItems([...items, {
-      product_id: product.id,
-      product_name: product.name,
-      product_price: product.unit_price,
-      quantity: addQuantity,
-      max_stock: product.current_stock,
-    }]);
+    setItems([
+      ...items,
+      {
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.unit_price,
+        quantity: Math.max(1, addQuantity),
+        max_stock: product.current_stock,
+      },
+    ]);
     setAddProductId(0);
     setAddQuantity(1);
   };
 
   const removeItem = (productId: number) => {
-    setItems(items.filter(i => i.product_id !== productId));
+    setItems(items.filter((i) => i.product_id !== productId));
   };
 
   const updateItemQuantity = (productId: number, quantity: number) => {
-    setItems(items.map(i => i.product_id === productId ? { ...i, quantity } : i));
+    setItems(
+      items.map((i) =>
+        i.product_id === productId ? { ...i, quantity: Math.max(1, quantity) } : i
+      )
+    );
   };
 
   const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalAmount = items.reduce((sum, i) => sum + (i.quantity * i.product_price), 0);
+  const totalAmount = items.reduce(
+    (sum, i) => sum + i.quantity * i.product_price,
+    0
+  );
 
-  const handleCreate = async (status: 'Draft' | 'Confirmed') => {
-    if (!selectedCustomer || items.length === 0) {
-      showToast('error', 'Please select a customer and add at least one product');
+  const handleCreateOrder = async (status: 'Draft' | 'Confirmed') => {
+    if (!selectedCustomer) {
+      showToast('error', 'Please select a customer for this order');
+      return;
+    }
+    if (items.length === 0) {
+      showToast('error', 'Please add at least one line item to the order');
       return;
     }
 
     try {
+      setSaving(true);
       await ordersApi.create({
         customer_id: selectedCustomer,
+        items: items.map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+        })),
         status,
-        items: items.map(i => ({ product_id: i.product_id, quantity: i.quantity })),
       });
-      showToast('success', `Order created as ${status}`);
+
+      showToast(
+        'success',
+        `Sales order created successfully as ${status}`
+      );
       setShowCreate(false);
       loadOrders();
     } catch (err: any) {
-      showToast('error', err.response?.data?.message || 'Failed to create order');
+      showToast('error', err.response?.data?.message || 'Failed to create sales order');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateStatus = async (orderId: number, newStatus: string) => {
+    try {
+      await ordersApi.updateStatus(orderId, newStatus);
+      showToast('success', `Order marked as ${newStatus}`);
+      if (showDetail) {
+        setShowDetail({ ...showDetail, status: newStatus as any });
+      }
+      loadOrders();
+    } catch (err: any) {
+      showToast('error', err.response?.data?.message || 'Failed to update order status');
     }
   };
 
@@ -137,279 +195,617 @@ export default function Orders() {
     }
   };
 
-  const updateStatus = async (id: number, status: string) => {
-    try {
-      await ordersApi.updateStatus(id, status);
-      showToast('success', `Order ${status.toLowerCase()}`);
-      if (showDetail) {
-        const res = await ordersApi.getById(id);
-        setShowDetail(res.data.data);
-      }
-      loadOrders();
-    } catch (err: any) {
-      showToast('error', err.response?.data?.message || 'Failed to update status');
-    }
-  };
+  const formatPrice = (price: number) =>
+    `₹${Number(price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
-  const formatPrice = (price: number) => `₹${Number(price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  // Metrics
+  const confirmedCount = orders.filter((o) => o.status === 'Confirmed').length;
+  const draftCount = orders.filter((o) => o.status === 'Draft').length;
+  const cancelledCount = orders.filter((o) => o.status === 'Cancelled').length;
+
+  const currentAddProduct = products.find((p) => p.id === addProductId);
 
   return (
-    <div className="animate-fadeIn">
+    <div>
+      {/* Toast Alert */}
       {toast && (
         <div className="toast-container">
-          <div className={`toast toast-${toast.type}`}>{toast.message}</div>
+          <div
+            className={`toast ${
+              toast.type === 'success' ? 'toast-success' : 'toast-error'
+            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2',
+              border: `1px solid ${toast.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+              color: toast.type === 'success' ? '#065f46' : '#991b1b',
+            }}
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle2 size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
+            <span>{toast.message}</span>
+          </div>
         </div>
       )}
 
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Sales Orders</h1>
-          <p className="page-subtitle">Manage sales delivery orders</p>
-        </div>
-        {hasRole('Admin', 'Sales') && (
-          <button className="btn btn-primary" onClick={openCreate}>+ Create Order</button>
-        )}
+      <PageHeader
+        title="Sales Orders"
+        subtitle="Manage customer orders, multi-item invoices, snapshots, and fulfillment lifecycle"
+        breadcrumb="Orders"
+        actions={
+          hasRole('Admin', 'Sales') && (
+            <button className="btn btn-primary" onClick={openCreate}>
+              <Plus size={16} /> Create Order
+            </button>
+          )
+        }
+      />
+
+      {/* KPI Cards */}
+      <div className="kpi-grid">
+        <KpiCard
+          label="Total Orders"
+          value={totalRecords || orders.length}
+          icon={ClipboardList}
+          tint="indigo"
+          badgeText="All Orders"
+          badgeType="neutral"
+          subtext="Processed sales invoices"
+        />
+        <KpiCard
+          label="Confirmed & Fulfilled"
+          value={confirmedCount}
+          icon={CheckCircle2}
+          tint="emerald"
+          badgeText="Confirmed"
+          badgeType="positive"
+          subtext="Ready for dispatch or completed"
+          onClick={() => setStatusFilter(statusFilter === 'Confirmed' ? '' : 'Confirmed')}
+        />
+        <KpiCard
+          label="Pending Drafts"
+          value={draftCount}
+          icon={Clock}
+          tint="blue"
+          badgeText="Drafts"
+          badgeType="neutral"
+          subtext="Awaiting client confirmation"
+          onClick={() => setStatusFilter(statusFilter === 'Draft' ? '' : 'Draft')}
+        />
+        <KpiCard
+          label="Cancelled Orders"
+          value={cancelledCount}
+          icon={XCircle}
+          tint="rose"
+          badgeText="Void"
+          badgeType="negative"
+          subtext="Cancelled transactions"
+          onClick={() => setStatusFilter(statusFilter === 'Cancelled' ? '' : 'Cancelled')}
+        />
       </div>
 
-      <div className="filter-bar">
-        <div className="search-input-wrapper">
-          <span className="search-icon">🔍</span>
-          <input className="form-input" placeholder="Search by order no. or customer..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+      {/* Filter and Search Bar */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ padding: '16px 20px' }}>
+          <div className="filter-bar" style={{ marginBottom: 0 }}>
+            <div className="search-input-wrapper">
+              <span className="search-icon">
+                <Search size={16} />
+              </span>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search by order number or customer name..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+
+            <div className="filter-group">
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                style={{ minWidth: 170 }}
+              >
+                <option value="">All Fulfillment Statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <select className="form-select" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-          <option value="">All Status</option>
-          <option value="Draft">Draft</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
       </div>
 
-      <div className="glass-card-static" style={{ padding: 0, overflow: 'hidden' }}>
-        {loading ? (
-          <div className="loading-spinner"><div className="spinner" /></div>
-        ) : (
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
+      {/* Orders Table */}
+      <div className="card">
+        <div className="table-container" style={{ border: 'none', boxShadow: 'none' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Client / Customer</th>
+                <th>Units</th>
+                <th>Fulfillment Status</th>
+                <th>Created By</th>
+                <th>Order Date</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th>Order No.</th>
-                  <th>Customer</th>
-                  <th>Total Qty</th>
-                  <th>Status</th>
-                  <th>Created By</th>
-                  <th>Date</th>
-                  <th>Actions</th>
+                  <td colSpan={7}>
+                    <div className="loading-spinner">
+                      <div className="spinner" />
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {orders.length > 0 ? orders.map((o) => (
+              ) : orders.length > 0 ? (
+                orders.map((o) => (
                   <tr key={o.id}>
-                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)', cursor: 'pointer' }} onClick={() => viewDetail(o.id)}>{o.order_number}</td>
-                    <td>{o.customer_name}</td>
-                    <td>{o.total_quantity}</td>
-                    <td><span className={`badge badge-${o.status.toLowerCase()}`}>{o.status}</span></td>
-                    <td>{o.created_by_name}</td>
-                    <td>{new Date(o.created_at).toLocaleDateString()}</td>
+                    <td
+                      className="td-mono"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => viewDetail(o.id)}
+                    >
+                      {o.order_number}
+                    </td>
+                    <td style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      {o.customer_name}
+                    </td>
+                    <td>{o.total_quantity} units</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => viewDetail(o.id)}>👁️</button>
+                      <span className={`badge badge-${o.status.toLowerCase()}`}>
+                        {o.status}
+                      </span>
+                    </td>
+                    <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.825rem' }}>
+                      {o.created_by_name || 'System'}
+                    </td>
+                    <td>{new Date(o.created_at).toLocaleDateString()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: 6 }}>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          style={{ padding: '5px 8px' }}
+                          onClick={() => viewDetail(o.id)}
+                          title="View Order Details"
+                        >
+                          <Eye size={14} />
+                        </button>
                         {o.status === 'Draft' && hasRole('Admin', 'Sales') && (
                           <>
-                            <button className="btn btn-success btn-sm" onClick={() => updateStatus(o.id, 'Confirmed')}>✓</button>
-                            <button className="btn btn-danger btn-sm" onClick={() => updateStatus(o.id, 'Cancelled')}>✕</button>
+                            <button
+                              className="btn btn-success btn-sm"
+                              style={{ padding: '5px 8px' }}
+                              onClick={() => handleUpdateStatus(o.id, 'Confirmed')}
+                              title="Confirm Order"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm"
+                              style={{ padding: '5px 8px' }}
+                              onClick={() => handleUpdateStatus(o.id, 'Cancelled')}
+                              title="Cancel Order"
+                            >
+                              <X size={14} />
+                            </button>
                           </>
-                        )}
-                        {o.status === 'Confirmed' && hasRole('Admin', 'Sales') && (
-                          <button className="btn btn-danger btn-sm" onClick={() => updateStatus(o.id, 'Cancelled')}>Cancel</button>
                         )}
                       </div>
                     </td>
                   </tr>
-                )) : (
-                  <tr><td colSpan={7}><div className="empty-state"><div className="empty-state-icon">📋</div><div className="empty-state-text">No orders found</div></div></td></tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <FileText size={24} />
+                      </div>
+                      <div className="empty-state-title">No Orders Found</div>
+                      <div className="empty-state-text">
+                        {statusFilter
+                          ? `No orders matching status "${statusFilter}".`
+                          : 'Create your first sales order using the button below.'}
+                      </div>
+                      {hasRole('Admin', 'Sales') && (
+                        <button className="btn btn-primary btn-sm" onClick={openCreate}>
+                          <Plus size={14} /> Create Order
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div style={{ padding: '0 20px' }}>
+            <div className="pagination">
+              <span className="pagination-info">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                className="pagination-btn"
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+              >
+                Previous
+              </button>
+              <button
+                className="pagination-btn"
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button className="pagination-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button key={p} className={`pagination-btn ${p === page ? 'active' : ''}`} onClick={() => setPage(p)}>{p}</button>
-          ))}
-          <button className="pagination-btn" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next →</button>
-        </div>
-      )}
-
       {/* Create Order Modal */}
       {showCreate && (
         <div className="modal-overlay" onClick={() => setShowCreate(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '750px' }}>
+          <div
+            className="modal-content"
+            style={{ maxWidth: 750 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
-              <h2>Create New Order</h2>
-              <button className="modal-close" onClick={() => setShowCreate(false)}>×</button>
+              <h2>New Sales Order Generator</h2>
+              <button className="modal-close" onClick={() => setShowCreate(false)}>
+                <X size={18} />
+              </button>
             </div>
+
             <div className="modal-body">
+              {/* Customer Selector */}
               <div className="form-group">
-                <label className="form-label">Customer *</label>
-                <select className="form-select" value={selectedCustomer} onChange={(e) => setSelectedCustomer(parseInt(e.target.value))}>
-                  <option value={0}>Select a customer</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} {c.business_name ? `(${c.business_name})` : ''}</option>
+                <label className="form-label">Client / Customer Account *</label>
+                <select
+                  className="form-select"
+                  value={selectedCustomer}
+                  onChange={(e) => setSelectedCustomer(Number(e.target.value))}
+                >
+                  <option value={0}>Choose customer to bill...</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.business_name ? `(${c.business_name})` : ''} — {c.type}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Add Products</label>
-                <div className="order-add-item">
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <select className="form-select" value={addProductId} onChange={(e) => setAddProductId(parseInt(e.target.value))}>
-                      <option value={0}>Select product</option>
-                      {products.filter(p => !items.find(i => i.product_id === p.id)).map(p => (
-                        <option key={p.id} value={p.id}>{p.name} ({p.sku}) — Stock: {p.current_stock} — {formatPrice(p.unit_price)}</option>
+              {/* Line Item Adder */}
+              <div
+                style={{
+                  background: 'var(--color-bg-subtle)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 16,
+                  marginTop: 16,
+                }}
+              >
+                <div style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 10 }}>
+                  <ShoppingBag size={14} style={{ display: 'inline', marginRight: 6 }} />
+                  Add Products to Order
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px auto', gap: 10, alignItems: 'end' }}>
+                  <div>
+                    <label className="form-label">Select Product</label>
+                    <select
+                      className="form-select"
+                      value={addProductId}
+                      onChange={(e) => setAddProductId(Number(e.target.value))}
+                    >
+                      <option value={0}>Choose catalog product...</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.sku}) — {formatPrice(p.unit_price)} [Stock: {p.current_stock}]
+                        </option>
                       ))}
                     </select>
                   </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <input className="form-input" type="number" min="1" value={addQuantity} onChange={(e) => setAddQuantity(parseInt(e.target.value) || 1)} placeholder="Qty" />
+                  <div>
+                    <label className="form-label">Quantity</label>
+                    <input
+                      type="number"
+                      min="1"
+                      className="form-input"
+                      value={addQuantity}
+                      onChange={(e) => setAddQuantity(Math.max(1, Number(e.target.value)))}
+                    />
                   </div>
-                  <button type="button" className="btn btn-secondary" onClick={addItem} disabled={!addProductId}>Add</button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={addItem}
+                    disabled={!addProductId}
+                  >
+                    <Plus size={16} /> Add Item
+                  </button>
                 </div>
+
+                {currentAddProduct && (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 8 }}>
+                    Unit Price: {formatPrice(currentAddProduct.unit_price)} | Available: {currentAddProduct.current_stock} units
+                  </div>
+                )}
               </div>
 
-              {/* Items list */}
-              {items.length > 0 && (
-                <div className="order-items-list">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 40px', gap: '8px', padding: '8px 12px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    <span>Product</span><span>Price</span><span>Qty</span><span>Total</span><span></span>
+              {/* Line Items Table */}
+              <div style={{ marginTop: 20 }}>
+                <label className="form-label">Order Items Breakdown ({items.length})</label>
+                {items.length === 0 ? (
+                  <div
+                    style={{
+                      border: '1px dashed var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: 24,
+                      textAlign: 'center',
+                      color: 'var(--color-text-muted)',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    No items added yet. Select a product above to add to this order.
                   </div>
-                  {items.map((item) => (
-                    <div key={item.product_id} className="order-item-row" style={{ gridTemplateColumns: '1fr 100px 100px 100px 40px' }}>
-                      <span style={{ color: '#f1f5f9', fontSize: '0.875rem' }}>{item.product_name}</span>
-                      <span style={{ fontSize: '0.85rem' }}>{formatPrice(item.product_price)}</span>
-                      <input
-                        className="form-input"
-                        type="number"
-                        min="1"
-                        max={item.max_stock}
-                        value={item.quantity}
-                        onChange={(e) => updateItemQuantity(item.product_id, parseInt(e.target.value) || 1)}
-                        style={{ padding: '6px 8px' }}
-                      />
-                      <span style={{ fontWeight: 600, color: 'var(--color-primary-light)' }}>{formatPrice(item.quantity * item.product_price)}</span>
-                      <button className="btn btn-ghost btn-sm" onClick={() => removeItem(item.product_id)} style={{ padding: '4px' }}>🗑️</button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {items.map((item) => (
+                      <div key={item.product_id} className="order-item-row">
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '0.875rem' }}>
+                            {item.product_name}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                            {formatPrice(item.product_price)} per unit
+                          </div>
+                        </div>
+                        <div>
+                          <input
+                            type="number"
+                            min="1"
+                            className="form-input"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateItemQuantity(item.product_id, Number(e.target.value))
+                            }
+                            style={{ padding: '6px 10px' }}
+                          />
+                        </div>
+                        <div style={{ fontWeight: 700, color: 'var(--color-primary)', textAlign: 'right' }}>
+                          {formatPrice(item.quantity * item.product_price)}
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-sm"
+                            style={{ padding: '6px' }}
+                            onClick={() => removeItem(item.product_id)}
+                            title="Remove Line"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
+              {/* Summary Bar */}
               {items.length > 0 && (
                 <div className="order-summary">
                   <div>
-                    <div className="order-summary-label">Total Items: {items.length}</div>
-                    <div className="order-summary-label">Total Quantity: {totalQuantity}</div>
+                    <div className="order-summary-label">Total Quantity</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{totalQuantity} units</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div className="order-summary-label">Total Amount</div>
+                    <div className="order-summary-label">Grand Total Amount</div>
                     <div className="order-summary-value">{formatPrice(totalAmount)}</div>
                   </div>
                 </div>
               )}
             </div>
+
             <div className="modal-footer">
-              <button type="button" className="btn btn-ghost" onClick={() => setShowCreate(false)}>Cancel</button>
-              <button className="btn btn-secondary" onClick={() => handleCreate('Draft')} disabled={!selectedCustomer || items.length === 0}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowCreate(false)}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => handleCreateOrder('Draft')}
+                disabled={saving || !selectedCustomer || items.length === 0}
+              >
                 Save as Draft
               </button>
-              <button className="btn btn-success" onClick={() => handleCreate('Confirmed')} disabled={!selectedCustomer || items.length === 0}>
-                Confirm & Deduct Stock
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => handleCreateOrder('Confirmed')}
+                disabled={saving || !selectedCustomer || items.length === 0}
+              >
+                Confirm Order
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Detail Modal */}
+      {/* Order Details Modal */}
       {showDetail && (
         <div className="modal-overlay" onClick={() => setShowDetail(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+          <div
+            className="modal-content"
+            style={{ maxWidth: 700 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
-              <h2>Order {showDetail.order_number}</h2>
-              <button className="modal-close" onClick={() => setShowDetail(null)}>×</button>
+              <div>
+                <h2>Order #{showDetail.order_number}</h2>
+                <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                  <span className={`badge badge-${showDetail.status.toLowerCase()}`}>
+                    {showDetail.status}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                    Created on {new Date(showDetail.created_at).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <button className="modal-close" onClick={() => setShowDetail(null)}>
+                <X size={18} />
+              </button>
             </div>
+
             <div className="modal-body">
               <div className="detail-grid">
-                <div className="detail-section glass-card-static">
+                <div className="detail-section">
                   <h3>Order Info</h3>
-                  <div className="detail-row"><span className="detail-label">Order No.</span><span className="detail-value" style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{showDetail.order_number}</span></div>
-                  <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value"><span className={`badge badge-${showDetail.status.toLowerCase()}`}>{showDetail.status}</span></span></div>
-                  <div className="detail-row"><span className="detail-label">Created By</span><span className="detail-value">{showDetail.created_by_name}</span></div>
-                  <div className="detail-row"><span className="detail-label">Date</span><span className="detail-value">{new Date(showDetail.created_at).toLocaleString()}</span></div>
+                  <div className="detail-row">
+                    <span className="detail-label">Order Ref</span>
+                    <span className="detail-value td-mono">{showDetail.order_number}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Status</span>
+                    <span className="detail-value">
+                      <span className={`badge badge-${showDetail.status.toLowerCase()}`}>
+                        {showDetail.status}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Operator</span>
+                    <span className="detail-value">{showDetail.created_by_name || 'System'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Total Units</span>
+                    <span className="detail-value">{showDetail.total_quantity}</span>
+                  </div>
                 </div>
-                <div className="detail-section glass-card-static">
-                  <h3>Customer</h3>
-                  <div className="detail-row"><span className="detail-label">Name</span><span className="detail-value">{showDetail.customer_name}</span></div>
-                  <div className="detail-row"><span className="detail-label">Business</span><span className="detail-value">{showDetail.customer_business || '—'}</span></div>
-                  <div className="detail-row"><span className="detail-label">Mobile</span><span className="detail-value">{showDetail.customer_mobile || '—'}</span></div>
-                  <div className="detail-row"><span className="detail-label">GST</span><span className="detail-value">{showDetail.customer_gst || '—'}</span></div>
+
+                <div className="detail-section">
+                  <h3>Customer Details</h3>
+                  <div className="detail-row">
+                    <span className="detail-label">Customer</span>
+                    <span className="detail-value">{showDetail.customer_name}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Business</span>
+                    <span className="detail-value">{showDetail.customer_business || '—'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Mobile</span>
+                    <span className="detail-value">{showDetail.customer_mobile || '—'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">GST</span>
+                    <span className="detail-value">{showDetail.customer_gst || '—'}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Items Table */}
-              <div style={{ marginTop: '20px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginBottom: '12px' }}>Items</h3>
-                <div className="table-container glass-card-static" style={{ borderRadius: '12px' }}>
+              {/* Items Table Snapshot */}
+              <div style={{ marginTop: 20 }}>
+                <label className="form-label">Itemized Snapshot</label>
+                <div className="table-container" style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
                   <table className="data-table">
                     <thead>
                       <tr>
-                        <th>Product</th>
-                        <th>Price (Snapshot)</th>
+                        <th>Product Snapshot</th>
+                        <th>Locked Unit Price</th>
                         <th>Qty</th>
-                        <th>Total</th>
+                        <th style={{ textAlign: 'right' }}>Subtotal</th>
                       </tr>
                     </thead>
                     <tbody>
                       {showDetail.items?.map((item) => (
                         <tr key={item.id}>
-                          <td>{item.product_name_snapshot}</td>
+                          <td style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                            {item.product_name_snapshot}
+                          </td>
                           <td>{formatPrice(item.product_price_snapshot)}</td>
                           <td>{item.quantity}</td>
-                          <td style={{ fontWeight: 600, color: 'var(--color-primary-light)' }}>{formatPrice(item.quantity * item.product_price_snapshot)}</td>
+                          <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--color-primary)' }}>
+                            {formatPrice(item.quantity * item.product_price_snapshot)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
-                <div className="order-summary" style={{ marginTop: '12px' }}>
-                  <div className="order-summary-label">Total Quantity: {showDetail.total_quantity}</div>
-                  <div>
-                    <div className="order-summary-label">Total Amount</div>
-                    <div className="order-summary-value">
-                      {formatPrice(showDetail.items?.reduce((sum, i) => sum + i.quantity * i.product_price_snapshot, 0) || 0)}
+                {showDetail.items && (
+                  <div className="order-summary" style={{ marginTop: 14 }}>
+                    <div>
+                      <div className="order-summary-label">Total Order Quantity</div>
+                      <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>
+                        {showDetail.items.reduce((s, i) => s + i.quantity, 0)} units
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div className="order-summary-label">Invoice Total</div>
+                      <div className="order-summary-value">
+                        {formatPrice(
+                          showDetail.items.reduce(
+                            (s, i) => s + i.quantity * i.product_price_snapshot,
+                            0
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
+            </div>
 
-              {/* Status Actions */}
-              {hasRole('Admin', 'Sales') && (
-                <div style={{ marginTop: '20px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                  {showDetail.status === 'Draft' && (
-                    <>
-                      <button className="btn btn-success" onClick={() => updateStatus(showDetail.id, 'Confirmed')}>✓ Confirm & Deduct Stock</button>
-                      <button className="btn btn-danger" onClick={() => updateStatus(showDetail.id, 'Cancelled')}>✕ Cancel</button>
-                    </>
-                  )}
-                  {showDetail.status === 'Confirmed' && (
-                    <button className="btn btn-danger" onClick={() => updateStatus(showDetail.id, 'Cancelled')}>Cancel Order (Restore Stock)</button>
-                  )}
-                </div>
+            <div className="modal-footer">
+              {showDetail.status === 'Draft' && hasRole('Admin', 'Sales') && (
+                <>
+                  <button
+                    className="btn btn-success"
+                    onClick={() => handleUpdateStatus(showDetail.id, 'Confirmed')}
+                  >
+                    <Check size={16} /> Confirm Order
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleUpdateStatus(showDetail.id, 'Cancelled')}
+                  >
+                    <X size={16} /> Cancel Order
+                  </button>
+                </>
               )}
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDetail(null)}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

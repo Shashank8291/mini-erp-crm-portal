@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
+import PageHeader from '../components/PageHeader';
+import {
+  User,
+  Shield,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  ArrowLeft,
+  Loader2,
+} from 'lucide-react';
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -18,16 +29,18 @@ export default function Profile() {
   const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
 
   useEffect(() => {
-    // Fetch latest user details on mount
-    authApi.getMe().then((res) => {
-      if (res.data?.data) {
-        const u = res.data.data;
-        setName(u.name || '');
-        setEmail(u.email || '');
-        setMobile(u.mobile || '');
-        updateUser(u);
-      }
-    }).catch(console.error);
+    authApi
+      .getMe()
+      .then((res) => {
+        if (res.data?.data) {
+          const u = res.data.data;
+          setName(u.name || '');
+          setEmail(u.email || '');
+          setMobile(u.mobile || '');
+          updateUser(u);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const showToast = (type: string, message: string) => {
@@ -35,24 +48,20 @@ export default function Profile() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newPassword || confirmPassword) {
       if (!currentPassword) {
-        showToast('error', 'Please enter your current password to update password');
+        showToast('error', 'Please enter your current password to authorize this security change');
         return;
       }
       if (newPassword !== confirmPassword) {
-        showToast('error', 'New password and confirm password do not match');
+        showToast('error', 'New password and confirmation do not match');
         return;
       }
       if (newPassword.length < 6) {
-        showToast('error', 'New password must be at least 6 characters long');
+        showToast('error', 'New password must contain at least 6 characters');
         return;
       }
     }
@@ -69,145 +78,214 @@ export default function Profile() {
 
       const updatedUser = res.data.data;
       updateUser(updatedUser);
-      showToast('success', 'Profile updated successfully!');
+      showToast('success', 'Profile and account preferences updated successfully');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      showToast('error', err.response?.data?.message || 'Failed to update profile');
+      showToast('error', err.response?.data?.message || 'Failed to update profile settings');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ maxWidth: 800 }}>
+      {/* Toast Alert */}
       {toast && (
         <div className="toast-container">
-          <div className={`toast toast-${toast.type}`}>{toast.message}</div>
+          <div
+            className={`toast ${
+              toast.type === 'success' ? 'toast-success' : 'toast-error'
+            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2',
+              border: `1px solid ${toast.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+              color: toast.type === 'success' ? '#065f46' : '#991b1b',
+            }}
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle2 size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
+            <span>{toast.message}</span>
+          </div>
         </div>
       )}
 
-      <div className="page-header" style={{ marginBottom: '24px' }}>
-        <div>
-          <h1 className="page-title">Account Settings</h1>
-          <p className="page-subtitle">View and update your profile information</p>
-        </div>
-        <button className="btn btn-secondary" onClick={handleGoBack}>
-          ← Go Back
-        </button>
-      </div>
+      <PageHeader
+        title="Account Preferences"
+        subtitle="Manage your profile information, role security parameters, and access credentials"
+        breadcrumb="Account"
+        actions={
+          <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16} /> Return to Dashboard
+          </button>
+        }
+      />
 
-      {/* User Header Summary Card */}
-      <div className="glass-card-static" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px', marginBottom: '24px' }}>
-        <div className="sidebar-user-avatar" style={{ width: '64px', height: '64px', fontSize: '1.6rem' }}>
-          {user?.name?.charAt(0) || '?'}
-        </div>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', marginBottom: '4px' }}>{user?.name}</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>{user?.email}</p>
-        </div>
-        <div className="badge badge-wholesale" style={{ fontSize: '0.85rem', padding: '6px 14px', textTransform: 'uppercase' }}>
-          {user?.role}
+      {/* Profile Overview Card */}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--color-primary)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              boxShadow: 'var(--shadow-sm)',
+              flexShrink: 0,
+            }}
+          >
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                {user?.name || 'User Profile'}
+              </h2>
+              <span className="badge badge-wholesale">
+                <Shield size={12} /> {user?.role || 'Operator'}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
+              {user?.email}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Profile Form Card */}
-      <form onSubmit={handleSubmit} className="glass-card-static" style={{ padding: '28px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-          Personal Information
-        </h3>
-
-        <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-          <div className="form-group">
-            <label className="form-label">Full Name / Username *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Email Address *</label>
-            <input
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+      <form onSubmit={handleSubmit} className="card">
+        <div className="card-header">
+          <div>
+            <h3 className="card-title">
+              <User size={18} className="text-secondary" /> Personal Profile
+            </h3>
+            <p className="card-description">
+              Update your corporate identity and contact points
+            </p>
           </div>
         </div>
 
-        <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div className="form-group">
-            <label className="form-label">Mobile Number</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="+91 9876543210"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-            />
+        <div className="card-body">
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Full Name *</label>
+              <input
+                type="text"
+                className="form-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email Address *</label>
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Role (Assigned)</label>
-            <input
-              type="text"
-              className="form-input"
-              value={user?.role || ''}
-              disabled
-              style={{ opacity: 0.7, cursor: 'not-allowed' }}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Mobile Contact Number</label>
+              <input
+                type="text"
+                className="form-input"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="+91 98765 43210"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Assigned Access Role</label>
+              <input
+                type="text"
+                className="form-input"
+                value={user?.role || ''}
+                disabled
+                style={{ background: 'var(--color-bg-subtle)', cursor: 'not-allowed', color: 'var(--color-text-muted)' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ margin: '24px 0 16px', borderTop: '1px solid var(--color-border-subtle)', paddingTop: 20 }}>
+            <h3 className="card-title" style={{ marginBottom: 4 }}>
+              <KeyRound size={18} className="text-secondary" /> Change Security Password
+            </h3>
+            <p className="card-description" style={{ marginBottom: 16 }}>
+              Leave blank if you do not wish to update your current password
+            </p>
+
+            <div className="form-group">
+              <label className="form-label">Current Password</label>
+              <input
+                type="password"
+                className="form-input"
+                placeholder="Required only when altering password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">New Password</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="Minimum 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Confirm New Password</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="Repeat new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)', marginTop: '28px', marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-          Update Password (Optional)
-        </h3>
-
-        <div className="form-group" style={{ marginBottom: '16px' }}>
-          <label className="form-label">Current Password</label>
-          <input
-            type="password"
-            className="form-input"
-            placeholder="Required only if changing password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div className="form-group">
-            <label className="form-label">New Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="Leave blank to keep current"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Confirm New Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="Re-enter new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '32px', borderTop: '1px solid rgba(148, 163, 184, 0.1)', paddingTop: '20px' }}>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
+        <div className="card-header" style={{ justifyContent: 'flex-end', background: '#f8fafc' }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <Loader2 size={16} className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                Saving Changes...
+              </>
+            ) : (
+              <>
+                <Save size={16} /> Save Preferences
+              </>
+            )}
           </button>
         </div>
       </form>

@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { dashboardApi } from '../api/dashboard';
 import type { DashboardStats } from '../types';
+import PageHeader from '../components/PageHeader';
+import KpiCard from '../components/KpiCard';
+import {
+  Users,
+  Package,
+  ClipboardList,
+  AlertTriangle,
+  Plus,
+  ArrowRight,
+  Eye,
+  FileText,
+  Clock,
+} from 'lucide-react';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -31,92 +44,156 @@ export default function Dashboard() {
     );
   }
 
+  const hasLowStock = (stats?.products?.lowStock || 0) > 0;
+
   return (
-    <div className="animate-fadeIn">
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Overview of your business operations</p>
-        </div>
+    <div>
+      <PageHeader
+        title="Operations Dashboard"
+        subtitle="Live metrics, inventory health, and recent sales activities"
+        breadcrumb="Overview"
+        actions={
+          <>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => navigate('/customers')}
+            >
+              <Users size={15} /> Add Customer
+            </button>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => navigate('/orders')}
+            >
+              <Plus size={15} /> New Sales Order
+            </button>
+          </>
+        }
+      />
+
+      {/* Smart KPI Grid */}
+      <div className="kpi-grid">
+        <KpiCard
+          label="Total Customers"
+          value={stats?.customers?.total || 0}
+          icon={Users}
+          tint="indigo"
+          badgeText={`${stats?.customers?.active || 0} Active`}
+          badgeType="positive"
+          subtext={`${stats?.customers?.leads || 0} leads in pipeline`}
+          onClick={() => navigate('/customers')}
+        />
+
+        <KpiCard
+          label="Catalog Products"
+          value={stats?.products?.total || 0}
+          icon={Package}
+          tint="blue"
+          badgeText="Active SKUs"
+          badgeType="neutral"
+          subtext="Tracked in warehouse"
+          onClick={() => navigate('/products')}
+        />
+
+        <KpiCard
+          label="Sales Orders"
+          value={stats?.orders?.total || 0}
+          icon={ClipboardList}
+          tint="emerald"
+          badgeText={`${stats?.orders?.confirmed || 0} Confirmed`}
+          badgeType="positive"
+          subtext={`${stats?.orders?.drafts || 0} draft status`}
+          onClick={() => navigate('/orders')}
+        />
+
+        <KpiCard
+          label="Stock Alert Monitor"
+          value={stats?.products?.lowStock || 0}
+          icon={AlertTriangle}
+          tint={hasLowStock ? 'amber' : 'emerald'}
+          badgeText={hasLowStock ? 'Restock Required' : 'All Stock Healthy'}
+          badgeType={hasLowStock ? 'negative' : 'positive'}
+          subtext={hasLowStock ? 'Items below minimum reserve' : 'Thresholds satisfied'}
+          onClick={() => navigate('/products')}
+        />
       </div>
 
-      <div className="stats-grid">
-        <div className="glass-card stat-card stat-card-blue" onClick={() => navigate('/customers')} style={{ cursor: 'pointer' }}>
-          <div className="stat-card-icon">👥</div>
-          <div className="stat-card-value">{stats?.customers?.total || 0}</div>
-          <div className="stat-card-label">Total Customers</div>
-          <div className="stat-card-sub">
-            <span>{stats?.customers?.active || 0}</span> active · <span>{stats?.customers?.leads || 0}</span> leads
+      {/* Recent Orders Section */}
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <h2 className="card-title">
+              <Clock size={18} className="text-secondary" />
+              Recent Sales Orders
+            </h2>
+            <p className="card-description">
+              Latest transactions generated across all client accounts
+            </p>
           </div>
+          <Link to="/orders" className="btn btn-ghost btn-sm">
+            View All Orders <ArrowRight size={14} />
+          </Link>
         </div>
 
-        <div className="glass-card stat-card stat-card-cyan" onClick={() => navigate('/products')} style={{ cursor: 'pointer' }}>
-          <div className="stat-card-icon">📦</div>
-          <div className="stat-card-value">{stats?.products?.total || 0}</div>
-          <div className="stat-card-label">Total Products</div>
-          <div className="stat-card-sub">
-            <span style={{ color: stats?.products?.lowStock ? '#f59e0b' : undefined }}>
-              {stats?.products?.lowStock || 0}
-            </span> low stock alerts
-          </div>
-        </div>
-
-        <div className="glass-card stat-card stat-card-green" onClick={() => navigate('/orders')} style={{ cursor: 'pointer' }}>
-          <div className="stat-card-icon">📋</div>
-          <div className="stat-card-value">{stats?.orders?.total || 0}</div>
-          <div className="stat-card-label">Total Orders</div>
-          <div className="stat-card-sub">
-            <span>{stats?.orders?.confirmed || 0}</span> confirmed · <span>{stats?.orders?.drafts || 0}</span> drafts
-          </div>
-        </div>
-
-        <div className="glass-card stat-card stat-card-orange">
-          <div className="stat-card-icon">⚠️</div>
-          <div className="stat-card-value">{stats?.products?.lowStock || 0}</div>
-          <div className="stat-card-label">Low Stock Alerts</div>
-          <div className="stat-card-sub">
-            Products below minimum threshold
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Orders */}
-      <div className="glass-card-static" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(148,163,184,0.1)' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-primary-light)' }}>Recent Sales Orders</h3>
-        </div>
-        <div className="table-container">
+        <div className="table-container" style={{ border: 'none', boxShadow: 'none' }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Order No.</th>
-                <th>Customer</th>
-                <th>Qty</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>Order Number</th>
+                <th>Client / Account</th>
+                <th>Quantity</th>
+                <th>Fulfillment Status</th>
+                <th>Created Date</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {stats?.recentOrders && stats.recentOrders.length > 0 ? (
                 stats.recentOrders.map((order) => (
-                  <tr key={order.id} onClick={() => navigate(`/orders`)} style={{ cursor: 'pointer' }}>
-                    <td style={{ fontFamily: 'monospace', color: 'var(--color-primary-light)' }}>{order.order_number}</td>
+                  <tr
+                    key={order.id}
+                    onClick={() => navigate('/orders')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td className="td-mono">{order.order_number}</td>
                     <td>{order.customer_name}</td>
-                    <td>{order.total_quantity}</td>
+                    <td>{order.total_quantity} units</td>
                     <td>
                       <span className={`badge badge-${order.status.toLowerCase()}`}>
                         {order.status}
                       </span>
                     </td>
                     <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/orders');
+                        }}
+                        title="View Order Details"
+                      >
+                        <Eye size={15} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div className="empty-state">
-                      <div className="empty-state-icon">📋</div>
-                      <div className="empty-state-text">No orders yet</div>
+                      <div className="empty-state-icon">
+                        <FileText size={24} />
+                      </div>
+                      <div className="empty-state-title">No Orders Recorded</div>
+                      <div className="empty-state-text">
+                        Create your first sales order to start monitoring real-time dispatch and revenue.
+                      </div>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => navigate('/orders')}
+                      >
+                        <Plus size={14} /> Create Order
+                      </button>
                     </div>
                   </td>
                 </tr>
