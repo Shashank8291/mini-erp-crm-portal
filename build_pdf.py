@@ -205,8 +205,8 @@ def create_pdf(filename="ERP_CRM_Portal_Documentation.pdf"):
     # Metadata Table
     meta_data = [
         [Paragraph("<b>Document Version:</b> 1.0.0", body_style), Paragraph("<b>Target Stack:</b> Node.js, Express, React, PostgreSQL", body_style)],
-        [Paragraph("<b>Author:</b> Antigravity Engineering Team", body_style), Paragraph("<b>Database Engine:</b> PostgreSQL 15 + Dual In-Memory Fallback", body_style)],
-        [Paragraph("<b>Repository:</b> Sonut05/mini-erp-crm-portal", body_style), Paragraph("<b>License:</b> MIT Enterprise License", body_style)]
+        [Paragraph("<b>Author:</b> Shashank Yadav", body_style), Paragraph("<b>Live Link:</b> <a href='https://shashank-erp-portal-2004.netlify.app/#/login' color='#0284C7'><u>shashank-erp-portal-2004.netlify.app</u></a>", body_style)],
+        [Paragraph("<b>Repository:</b> <a href='https://github.com/Shashank8291/mini-erp-crm-portal' color='#0284C7'><u>Shashank8291/mini-erp-crm-portal</u></a>", body_style), Paragraph("<b>License:</b> MIT Enterprise License", body_style)]
     ]
     t_meta = Table(meta_data, colWidths=[250, 254])
     t_meta.setStyle(TableStyle([
@@ -581,7 +581,7 @@ def create_pdf(filename="ERP_CRM_Portal_Documentation.pdf"):
 
     story.append(Spacer(1, 25))
     story.append(HRFlowable(width="100%", thickness=1, color=c_accent, spaceBefore=10, spaceAfter=15))
-    story.append(Paragraph("<i>End of Mini ERP + CRM Portal Technical Documentation — Generated for Sonut05/mini-erp-crm-portal</i>", ParagraphStyle('FooterNote', parent=body_style, alignment=1, fontName='Helvetica-Oblique', textColor=colors.HexColor("#64748B"))))
+    story.append(Paragraph("<i>End of Mini ERP + CRM Portal Technical Documentation — Generated for Shashank8291/mini-erp-crm-portal</i>", ParagraphStyle('FooterNote', parent=body_style, alignment=1, fontName='Helvetica-Oblique', textColor=colors.HexColor("#64748B"))))
 
     # Build Document
     doc.build(story, canvasmaker=NumberedCanvas)
